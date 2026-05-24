@@ -1,8 +1,10 @@
 import { Text, View } from "react-native";
 import { StyleSheet } from "react-native";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 
 import Button from "../components/Button"
+
+const router = useRouter();
 
 export default function Index() { // Основное наполнение страницы
   return (
@@ -12,8 +14,8 @@ export default function Index() { // Основное наполнение ст�
         Перейти к настройкам
       </Link>
       <View style={styles.footerContainer}>
-        <Button label="Добавить заметку" backgroundColor="#e05807"/>
-        <Button label="Открыть заметку" backgroundColor="#e05807"/>
+        <Button label="Добавить заметку" backgroundColor="#e05807" onPress={() => {router.navigate("./newNote")}}/>
+        {/* <Button label="Открыть заметку" backgroundColor="#e05807"/> */}
       </View>
     </View>
   );
