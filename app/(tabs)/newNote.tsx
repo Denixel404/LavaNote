@@ -3,10 +3,21 @@ import { StyleSheet } from "react-native";
 import { useState } from "react";
 
 import Button from "../components/Button";
+import { createFile } from "@/src/scripts/fileSystem";
 
 export default function newNote() { // Основное наполнение страницы
   const [noteTitle, setNoteTitle] = useState("");
   const [noteText, setNoteText] = useState("");
+
+  let create = () => {
+    if ((noteTitle === "") || (noteText === "")) {
+      alert("Поля не должны быть пустыми!");
+      return;
+    }
+    let content = [noteTitle, noteText]
+    createFile(`${noteTitle}.txt`, content)
+  }   
+
   return (
       <View style={styles.container}>
         <Text style={styles.title}>Создайте новую заметку</Text>
@@ -28,7 +39,7 @@ export default function newNote() { // Основное наполнение с�
           value={noteText}
           onChangeText={text => setNoteText(text)}
         />
-        <Button label="Создать!" backgroundColor="#e05807" onPress={() => {alert("Создаем заметку...")}}/>
+        <Button label="Создать!" backgroundColor="#e05807" onPress={create}/>
       </View>
   );
 }
