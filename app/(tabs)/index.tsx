@@ -1,13 +1,13 @@
 /* eslint-disable import/no-unresolved */
 import { FlatList, Text, View } from "react-native";
-import { StyleSheet } from "react-native";
-import { Link } from "expo-router";
+import { StyleSheet, Alert } from "react-native";
 import React from "react";
 import { useState, useCallback } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
 import Button from "../components/Button"
-import { getData, getFileInfo } from "@/src/scripts/fileSystem"
+import SmallButton from "../components/SmallButton"
+import { getData, getFileInfo, deleteFile } from "@/src/scripts/fileSystem"
 import { getDisplayDate } from "@/src/scripts/utils"
 
 // npx expo start
@@ -34,9 +34,32 @@ export default function Index() { // <- убран async
         data={files}
         keyExtractor={(item) => item.uri} 
         renderItem={({ item }) => (
-          <View style={styles.note}>
-            <Text style={styles.note_text}>{item.name}</Text>
-            <Text style={styles.note_text_info}>{getDisplayDate(item.creationTime)}</Text>
+          <View style={styles.notes}>
+            <View style={styles.note}>
+              <Text style={styles.note_text}>{item.name}</Text>
+              <Text style={styles.note_text_info}>
+                {getDisplayDate(item.creationTime)}
+              </Text>
+            </View>
+            <View style={styles.notes_btns}>
+
+              <SmallButton name={"trash"} backgroundColor="red" onPress={async () => {
+                Alert.alert(`Вы действительно хотите удалить ${item.name}?`, 
+                "Это действие невозможно отменить", 
+                [
+                  {text: "Отмена", style: "cancel"},
+                  {text: "Удалить", style: "destructive",
+                  onPress: async () => {
+                    await deleteFile(item.name);
+                    const newList = await getData();
+                    setFiles(newList);
+                  }
+                }]
+                )}} 
+                />
+
+              <SmallButton name={"eye"} backgroundColor="gray" onPress={() => alert("Загружаем заметку...") } />
+            </View>
           </View>
         )}
         ListEmptyComponent={<Text style={styles.empty}>Здесь пока пусто. Начните работать!</Text>}
@@ -55,14 +78,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  note: {
+  notes: {
+    flex: 2,
+    flexDirection: "row",
     borderWidth: 2,
     borderColor: "#ed8143",
     borderRadius: 5,
     padding: 20,
-    width: 300,
+    width: 325,
     marginBottom: 5,
     marginTop: 5,
+    gap: 20,
+  },
+  note: {
+    // Стили для кнопок
+  },
+  notes_btns: {
+    flexDirection: "row",
+    width: "50%",
   },
   note_text: {
     color: "white",

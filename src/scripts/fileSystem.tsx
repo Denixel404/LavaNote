@@ -1,4 +1,4 @@
-import { File, Directory, Paths, readDirectoryAsync, deleteAsync, getInfoAsync } from "expo-file-system";
+import { File, Directory, Paths } from "expo-file-system";
 import { router, useRouter } from "expo-router";
 
 const folder_name = "LavaNote"; // 
@@ -52,5 +52,12 @@ export async function getFileInfo(filename: string) {
     const infoObj = await file.info();
     const info = [infoObj.uri, infoObj.size, infoObj.modificationTime, infoObj.size, infoObj.uri]
     console.log(`FileSystem: file ${filename} info\n${info[2]}`);
+}
+
+export async function deleteFile(filename: string) {
+    const folder = new Directory(Paths.document, folder_name);
+    const file = new File(folder, filename);
+    await file.delete(); 
+    console.log(`FileSystem: file ${filename} was deleted`);
 }
 
