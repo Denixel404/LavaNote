@@ -25,7 +25,7 @@ export default function TabLayout() {
                     }} />
             <Tabs.Screen 
                 name="settings" 
-                options={{ title: "Настройки",
+                options={{ title: "О приложении",
                 tabBarIcon: ({ color, focused }) => (<Ionicons name={focused? "information-circle": "information-circle-outline"} color={color} size={24} />)
                 }} />
             <Tabs.Screen 
