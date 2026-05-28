@@ -16,7 +16,10 @@ export default function Index() { // <- убран async
   const nav = useNavigation();
   const [files, setFiles] = useState<File[]>([]);
 
-  getFileInfo("Заголовок.txt");
+  const showNote = (note: string) => {
+    nav.navigate("showNote", {filename: note});
+  }
+
 
   useFocusEffect(
     useCallback(() => {
@@ -58,7 +61,7 @@ export default function Index() { // <- убран async
                 )}} 
                 />
 
-              <SmallButton name={"eye"} backgroundColor="gray" onPress={() => alert("Загружаем заметку...") } />
+              <SmallButton name={"eye"} backgroundColor="gray" onPress={() => showNote(item.name) } />
             </View>
           </View>
         )}

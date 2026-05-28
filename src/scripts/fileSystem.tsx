@@ -1,5 +1,5 @@
 import { File, Directory, Paths } from "expo-file-system";
-import { router, useRouter } from "expo-router";
+import { router } from "expo-router";
 
 const folder_name = "LavaNote"; // 
 const dir = `${Paths.document}${folder_name}`;
@@ -27,6 +27,12 @@ export async function createFile(filenane: string, content: string[]) { // Со�
     //console.log(`FileSystem dir: ${getData()}`);
 }
 
+export async function readFile(filename: string) {
+    const folder = new Directory(Paths.document, folder_name);
+    const file = new File(folder, filename);
+    return await file.text();
+}
+
 async function deleteFolder() {
     const targetFolder = new Directory(Paths.document, "LavaNoter");
     if (!targetFolder.exists) {
@@ -41,7 +47,6 @@ export async function  getData() {
     const workDir = new Directory(Paths.document, "LavaNote");
     const objects_list = await workDir.list();
     const files = objects_list.filter(item => item instanceof File);
-    console.log(`files: ${files}`)
     return files;
 }
 

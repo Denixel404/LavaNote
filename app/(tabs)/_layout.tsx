@@ -34,6 +34,12 @@ export default function TabLayout() {
                     title: "Новая заметка",
                     href: null,
                 }} />
+            <Tabs.Screen 
+                name="showNote"
+                options={{
+                    title: "Просмотр",
+                    href: null,
+                }} />
         </Tabs>
     );
 }
