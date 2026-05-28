@@ -1,5 +1,6 @@
 import { Text, View, TouchableOpacity, Linking } from "react-native";
 import { StyleSheet, Alert } from "react-native";
+import Constants from 'expo-constants';
 
 import SocialLink from "@/app/components/Links";
 
@@ -19,7 +20,7 @@ export default function Settings() { // Основное наполнение с
     <View style={styles.container}>
       <View style={styles.banner}>
         <Text style={styles.title}>О приложении</Text>
-        <Text style={styles.text}>Версия: 0.1.9 beta</Text>
+        <Text style={styles.text}>Версия: {Constants.expoConfig?.version} beta</Text>
       </View>
       <SocialLink image={tgLogo} label="Канал в Telegram"  url="https://t.me/under_the_ctrl"/>
       <SocialLink image={githubLogo} label="Страница на GitHub"  url="https://github.com"/>
