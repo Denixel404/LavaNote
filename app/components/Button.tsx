@@ -1,4 +1,4 @@
-import { StyleSheet, View, Pressable, Text } from "react-native";
+import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 
 type Props = {
     label: string;
@@ -9,9 +9,9 @@ type Props = {
 export default function Button ({ label, backgroundColor, onPress }: Props) {
     return (
         <View style={styles.buttonContainer}>
-            <Pressable style={[styles.button, {backgroundColor}]} onPress={onPress}>
+            <TouchableOpacity style={[styles.button, {backgroundColor}]} onPress={onPress}>
                 <Text style={styles.buttonLabel}>{label}</Text>
-            </Pressable>
+            </TouchableOpacity>
         </View>
     )
 }

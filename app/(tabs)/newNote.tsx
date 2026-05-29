@@ -13,6 +13,9 @@ export default function newNote() { // Основное наполнение с�
     if ((noteTitle === "") || (noteText === "")) {
       alert("Поля не должны быть пустыми!");
       return;
+    } else if (noteTitle.length > 14) {
+      alert("Заголовок слишком длинный!");
+      return
     }
     let content = [noteTitle, noteText]
     createFile(`${noteTitle}.txt`, content)

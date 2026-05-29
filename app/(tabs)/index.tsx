@@ -7,7 +7,7 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
 import Button from "../components/Button"
 import SmallButton from "../components/SmallButton"
-import { getData, getFileInfo, deleteFile } from "@/src/scripts/fileSystem"
+import { getData, deleteFile } from "@/src/scripts/fileSystem"
 import { getDisplayDate } from "@/src/scripts/utils"
 
 // npx expo start
@@ -113,6 +113,9 @@ const styles = StyleSheet.create({
   },
   empty: {
     color: "white",
+    fontSize: 20,
+    textAlign: "center",
+    marginTop: 100,
   },
   sett_btn: {
     fontSize: 20,

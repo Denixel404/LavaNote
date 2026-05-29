@@ -23,7 +23,7 @@ export default function Settings() { // Основное наполнение с
         <Text style={styles.text}>Версия: {Constants.expoConfig?.version} beta</Text>
       </View>
       <SocialLink image={tgLogo} label="Канал в Telegram"  url="https://t.me/under_the_ctrl"/>
-      <SocialLink image={githubLogo} label="Страница на GitHub"  url="https://github.com"/>
+      <SocialLink image={githubLogo} label="Страница на GitHub"  url="https://github.com/Denixel404/LavaNote"/>
       <TouchableOpacity style={styles.feedback} onPress={feedback}>
         <Text style={styles.text}>✏️ Нашли баг или есть идея?</Text>
       </TouchableOpacity>
