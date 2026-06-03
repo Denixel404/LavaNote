@@ -1,4 +1,3 @@
-
 export const getDisplayDate = (timestamp: number) => {
   if (!timestamp) return 'Дата неизвестна';
   // Определяем систему: если число больше 10^11 (100 миллиардов), значит это миллисекунды

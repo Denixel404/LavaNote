@@ -7,6 +7,7 @@ type Props = {
     image: ImageSourcePropType;
 };
 
+// Гипер ссылка с картинкой
 export default function SocialLink ({ label, url, image }: Props) {
     return (
         <TouchableOpacity style={styles.piclink} onPress={() => Linking.openURL(url)}>

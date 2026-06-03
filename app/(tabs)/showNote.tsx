@@ -1,4 +1,4 @@
-import { Text, View, TextInput } from "react-native";
+import { Text, View } from "react-native";
 import { StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";

@@ -6,6 +6,7 @@ type Props = {
     onPress: () => void;
 };
 
+// Стандартная кнопка
 export default function Button ({ label, backgroundColor, onPress }: Props) {
     return (
         <View style={styles.buttonContainer}>

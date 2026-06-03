@@ -40,6 +40,12 @@ export default function TabLayout() {
                     title: "Просмотр",
                     href: null,
                 }} />
+            <Tabs.Screen 
+                name="editNote"
+                options={{
+                    title: "Редактирование",
+                    href: null,
+                }} />
         </Tabs>
     );
 }

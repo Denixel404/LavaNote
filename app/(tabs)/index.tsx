@@ -5,30 +5,34 @@ import React from "react";
 import { useState, useCallback } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
-import Button from "../components/Button"
-import SmallButton from "../components/SmallButton"
-import { getData, deleteFile } from "@/src/scripts/fileSystem"
-import { getDisplayDate } from "@/src/scripts/utils"
+import Button from "../components/Button";
+import SmallButton from "../components/SmallButton";
+import { getData, deleteFile } from "@/src/scripts/fileSystem";
+import { getDisplayDate } from "@/src/scripts/utils";
 
-// npx expo start
+// npx expo start - запуск проекта на локальном  сервере
 
-export default function Index() { // <- убран async
+export default function Index() {
   const nav = useNavigation();
   const [files, setFiles] = useState<File[]>([]);
 
-  const showNote = (note: string) => {
-    nav.navigate("showNote", {filename: note});
+  const showNote = (note: string) => { // Действия кнопки показа заметки
+    nav.navigate("showNote", {filename: note}); // Переадресация с передачей аргумента
+  }
+
+  const editNote = (file: string) => { // Действия кнопки редактирования заметки
+    nav.navigate("editNote", {filename: file}); // Переадресация с передачей аргумента
   }
 
 
-  useFocusEffect(
+  useFocusEffect( // Динамическое обновление списка заметок
     useCallback(() => {
       const loadFiles = async () => {
         const loadedFiles = await getData();
         setFiles(loadedFiles);
       };
       loadFiles();
-    }, [])
+    }, []) // Зависимости
   )
 
   return (
@@ -62,6 +66,7 @@ export default function Index() { // <- убран async
                 />
 
               <SmallButton name={"eye"} backgroundColor="gray" onPress={() => showNote(item.name) } />
+              <SmallButton name={"edit"} backgroundColor="#ecb40b" onPress={() => editNote(item.name)}/>
             </View>
           </View>
         )}

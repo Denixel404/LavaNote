@@ -1,30 +1,53 @@
 import { Text, View, TextInput } from "react-native";
 import { StyleSheet } from "react-native";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useLocalSearchParams } from "expo-router";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
 import Button from "../components/Button";
-import { createFile } from "@/src/scripts/fileSystem";
+import { writeFile, readFile, renameFile } from "@/src/scripts/fileSystem";
 
-export default function newNote() { // Основное наполнение страницы
+export default function editNote() { // Основное наполнение страницы
   const [noteTitle, setNoteTitle] = useState("");
   const [noteText, setNoteText] = useState("");
+  const [old_title, setOldTitle] = useState(noteText);
+  const { filename } = useLocalSearchParams();
 
-  let create = () => { // Создание файла заметки
-    if ((noteTitle === "") || (noteText === "")) {
+  const nav = useNavigation();
+
+  useFocusEffect( // Перерендеринг страницы в случае открытия редактора для другой заметки
+    useCallback(() => {
+      const load = async () => {
+        const content = await readFile(filename);
+        //console.log(`LOAD:\n${content}\n from ${filename}`);
+        let structure = content.split('\n');
+        setNoteTitle(structure[0]);
+        setOldTitle(structure[0]);
+
+        structure.splice(0, 1);
+        setNoteText(structure.join('\n'));
+      }; 
+      load()}, 
+    [filename]) // Зависимость от изменяемой переменной
+  );
+
+  let edit = async () => { // Сохранение изменений
+    if ((noteTitle === "") || (noteText === "")) { // Валидация данных
       alert("Поля не должны быть пустыми!");
       return;
     } else if (noteTitle.length > 14) {
       alert("Заголовок слишком длинный!");
       return
     }
-    let content = [noteTitle, noteText]
-    createFile(`${noteTitle}.txt`, content)
+    let content = `${noteTitle}\n${noteText}`
+    await writeFile(filename, content); // Перезапись файла
+    if (!(noteTitle === old_title)) await renameFile(filename, `${noteTitle}.txt`); // Проверка на изменение имени файла
+    nav.navigate("index");
   }   
 
   return (
       <View style={styles.container}>
-        <Text style={styles.title}>Создайте новую заметку</Text>
-        <Text style={styles.text}>1. Подберите идеальный заголовок</Text>
+        <Text style={styles.text}>Смените заголовок</Text>
         <TextInput 
           style={styles.input_title}
           placeholder="Место для заголовка"
@@ -32,7 +55,7 @@ export default function newNote() { // Основное наполнение с�
           value={noteTitle}
           onChangeText={text => setNoteTitle(text)}
         />
-        <Text style={styles.text}>2. Опишите свои мысли</Text>
+        <Text style={styles.text}>Измените старый текст</Text>
         <TextInput 
           style={styles.input_text}
           multiline={true}
@@ -42,7 +65,7 @@ export default function newNote() { // Основное наполнение с�
           value={noteText}
           onChangeText={text => setNoteText(text)}
         />
-        <Button label="Создать!" backgroundColor="#e05807" onPress={create}/>
+        <Button label="Сохранить" backgroundColor="#e05807" onPress={edit}/>
       </View>
   );
 }

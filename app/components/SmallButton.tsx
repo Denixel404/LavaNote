@@ -1,12 +1,13 @@
 import { StyleSheet, View, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons"
 
-type Props = {
+type Props = { // Изменяющиеся параметры
     name: FeatherType;
     backgroundColor?: string;
     onPress: () => void;
 };
 
+// Маленькая кнопка с иконкой
 export default function SmallButton ({ name, backgroundColor, onPress }: Props) {
     return (
         <View style={styles.buttonContainer}>
@@ -19,8 +20,8 @@ export default function SmallButton ({ name, backgroundColor, onPress }: Props) 
 
 const styles = StyleSheet.create({
     buttonContainer: {
-        width: 50,
-        height: 50,
+        width: 40,
+        height: 40,
         marginHorizontal: 1,
         alignItems: "center",
         justifyContent: "center",
