@@ -1,10 +1,10 @@
 /* eslint-disable import/no-unresolved */
 import { FlatList, Text, View } from "react-native";
 import { StyleSheet, Alert } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { useState, useCallback } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { useAudioPlayer } from "expo-audio";
+import { Audio } from "expo-av";
 
 import Button from "../components/Button";
 import SmallButton from "../components/SmallButton";
@@ -12,13 +12,11 @@ import { getData, deleteFile } from "@/src/scripts/fileSystem";
 import { getDisplayDate } from "@/src/scripts/utils";
 import { colors } from "@/src/globalVars";
 
-const deleteSound = require("@/assets/sounds/delete.mp3");
-
 // npx expo start - запуск проекта на локальном  сервере
 
 export default function Index() {
   const nav = useNavigation();
-  const player = useAudioPlayer(deleteSound);
+  const [deleteSound, setDeleteSound] = useState(null);
   const [files, setFiles] = useState<File[]>([]);
 
   const showNote = (note: string) => { // Действия кнопки показа заметки
@@ -29,6 +27,16 @@ export default function Index() {
     nav.navigate("editNote", {filename: file}); // Переадресация с передачей аргумента
   }
 
+  useEffect(() => {
+    const loadSound = async () => {
+      const {sound: loadedSound} = await Audio.Sound.createAsync(require("@/assets/sounds/delete.mp3"));
+      setDeleteSound(loadedSound);
+    }
+    loadSound();
+    return () => {
+      if (deleteSound) deleteSound.unloadAsync();
+    }
+  }, []);
 
   useFocusEffect( // Динамическое обновление списка заметок
     useCallback(() => {
@@ -64,8 +72,20 @@ export default function Index() {
                   {text: "Удалить", style: "destructive",
                   onPress: async () => {
                     await deleteFile(item.name);
-                    player.seekTo(0);
-                    player.play();
+                    
+                    const playDeleteSound = async () => {
+                      if (deleteSound) {
+                        try {
+                          // Перематываем звук в самое начало
+                          await deleteSound.setPositionAsync(0);
+                          // Запускаем воспроизведение
+                          await deleteSound.playAsync();
+                        } catch (error) {
+                          console.error('Ошибка при воспроизведении:', error);
+                        }
+                      }
+                    };
+                    playDeleteSound();
                     const newList = await getData();
                     setFiles(newList);
                   }

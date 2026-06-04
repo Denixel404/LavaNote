@@ -1,20 +1,29 @@
 import { Text, View, TextInput } from "react-native";
 import { StyleSheet } from "react-native";
-import { useState } from "react";
-import { useAudioPlayer } from "expo-audio";
+import { useState, useEffect } from "react";
+import { Audio } from "expo-av";
 
 import Button from "../components/Button";
-import { createFile } from "@/src/scripts/fileSystem";
+import { createFile, deleteFile } from "@/src/scripts/fileSystem";
 import { colors } from "@/src/globalVars"; 
-
-const addSound = require("@/assets/sounds/add.mp3");
 
 export default function newNote() { // Основное наполнение страницы
   const [noteTitle, setNoteTitle] = useState("");
   const [noteText, setNoteText] = useState("");
-  const player = useAudioPlayer(addSound);
+  const [addSound, setAddSound] = useState(null);
 
-  let create = () => { // Создание файла заметки
+  useEffect(() => {
+      const loadSound = async () => {
+        const {sound: loadedSound} = await Audio.Sound.createAsync(require("@/assets/sounds/add.mp3"));
+        setAddSound(loadedSound);
+      }
+      loadSound();
+      return () => {
+        if (addSound) addSound.unloadAsync();
+      }
+    }, []);
+
+  let create = async () => { // Создание файла заметки
     if ((noteTitle === "") || (noteText === "")) {
       alert("Поля не должны быть пустыми!");
       return;
@@ -24,8 +33,20 @@ export default function newNote() { // Основное наполнение с�
     }
     let content = [noteTitle, noteText]
     createFile(`${noteTitle}.txt`, content)
-    player.seekTo(0);
-    player.play();
+    
+    const playAddSound = async () => {
+      if (addSound) {
+        try {
+          // Перематываем звук в самое начало
+          await addSound.setPositionAsync(0);
+          // Запускаем воспроизведение
+          await addSound.playAsync();
+        } catch (error) {
+          console.error('Ошибка при воспроизведении:', error);
+        }
+      }
+    };
+    playAddSound();
   }   
 
   return (
