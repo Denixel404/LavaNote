@@ -6,6 +6,7 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
 import Button from "../components/Button";
 import { writeFile, readFile, renameFile } from "@/src/scripts/fileSystem";
+import { colors } from "@/src/globalVars";
 
 export default function editNote() { // Основное наполнение страницы
   const [noteTitle, setNoteTitle] = useState("");
@@ -65,7 +66,7 @@ export default function editNote() { // Основное наполнение с
           value={noteText}
           onChangeText={text => setNoteText(text)}
         />
-        <Button label="Сохранить" backgroundColor="#e05807" onPress={edit}/>
+        <Button label="Сохранить" backgroundColor={colors.lava} onPress={edit}/>
       </View>
   );
 }
@@ -73,9 +74,10 @@ export default function editNote() { // Основное наполнение с
 const styles = StyleSheet.create({ // Таблица стилей
   container: {
     flex: 1,
-    backgroundColor: "#040332",
+    backgroundColor: colors.background,
     alignItems: "center",
     justifyContent: "flex-start",
+    experimental_backgroundImage: "linear-gradient(#0A0F1A, #341913)",
   },
   title: {
     color: "white",
@@ -90,7 +92,7 @@ const styles = StyleSheet.create({ // Таблица стилей
   input_text: {
     height: 200,
     width: 300,
-    borderColor: "#e05807",
+    borderColor: colors.lava,
     borderWidth: 1,
     paddingHorizontal: 10,
     marginBottom: 20,

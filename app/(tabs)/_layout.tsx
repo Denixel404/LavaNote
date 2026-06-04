@@ -1,20 +1,23 @@
 import { Tabs } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-let panelcolor = "#07091b";
-let orangecolor = "#e05807";
+import { colors } from "@/src/globalVars";
+
+let panelcolor = colors.panel;
+let orangecolor = colors.lava;
 
 export default function TabLayout() {
     return (
         <Tabs screenOptions={{ 
             tabBarActiveTintColor: orangecolor, 
             headerStyle: {
-                backgroundColor: panelcolor
+                backgroundColor: panelcolor,
             },
             headerShadowVisible: false,
             headerTintColor: "#fff",
             tabBarStyle: {
-                backgroundColor: panelcolor
+                backgroundColor: panelcolor,
+                experimental_backgroundImage: "linear-gradient(#1c1b20, #0c0a15)",
             }
         }}>
             <Tabs.Screen 

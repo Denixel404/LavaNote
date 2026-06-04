@@ -2,7 +2,7 @@
   "expo": {
     "name": "LavaNote",
     "slug": "Lavanote",
-    "version": "0.3.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "lavanote",
     "userInterfaceStyle": "automatic",
@@ -34,7 +34,8 @@
       "predictiveBackGestureEnabled": false
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-audio"
     ],
     "experiments": {
       "typedRoutes": true,

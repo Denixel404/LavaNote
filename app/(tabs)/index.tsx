@@ -4,16 +4,21 @@ import { StyleSheet, Alert } from "react-native";
 import React from "react";
 import { useState, useCallback } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { useAudioPlayer } from "expo-audio";
 
 import Button from "../components/Button";
 import SmallButton from "../components/SmallButton";
 import { getData, deleteFile } from "@/src/scripts/fileSystem";
 import { getDisplayDate } from "@/src/scripts/utils";
+import { colors } from "@/src/globalVars";
+
+const deleteSound = require("@/assets/sounds/delete.mp3");
 
 // npx expo start - запуск проекта на локальном  сервере
 
 export default function Index() {
   const nav = useNavigation();
+  const player = useAudioPlayer(deleteSound);
   const [files, setFiles] = useState<File[]>([]);
 
   const showNote = (note: string) => { // Действия кнопки показа заметки
@@ -37,6 +42,7 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
+
       <FlatList
         data={files}
         keyExtractor={(item) => item.uri} 
@@ -58,6 +64,8 @@ export default function Index() {
                   {text: "Удалить", style: "destructive",
                   onPress: async () => {
                     await deleteFile(item.name);
+                    player.seekTo(0);
+                    player.play();
                     const newList = await getData();
                     setFiles(newList);
                   }
@@ -73,8 +81,9 @@ export default function Index() {
         ListEmptyComponent={<Text style={styles.empty}>Здесь пока пусто. Начните работать!</Text>}
       />
       <View style={styles.footerContainer}>
-        <Button label="Добавить заметку" backgroundColor="#e05807" onPress={() => { nav.navigate("newNote") }} />
+        <Button label="Добавить заметку" backgroundColor={colors.lava} onPress={() => { nav.navigate("newNote") }} />
       </View>
+
     </View>
   );
 }
@@ -82,16 +91,19 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#040332",
+    backgroundColor: colors.background,
     alignItems: "center",
     justifyContent: "center",
+    experimental_backgroundImage: "linear-gradient(#0A0F1A, #341913)"
   },
   notes: {
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backdropFilter: "blur(10px)",
     flex: 2,
     flexDirection: "row",
     borderWidth: 2,
-    borderColor: "#ed8143",
-    borderRadius: 5,
+    borderColor: colors.lava,
+    borderRadius: 15,
     padding: 20,
     width: 325,
     marginBottom: 5,

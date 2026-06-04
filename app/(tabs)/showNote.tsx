@@ -3,7 +3,8 @@ import { StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
 
-import { readFile } from "@/src/scripts/fileSystem"
+import { readFile } from "@/src/scripts/fileSystem";
+import { colors } from "@/src/globalVars";
 
 export default function showNote() { // Основное наполнение страницы
   const { filename } = useLocalSearchParams();
@@ -32,9 +33,10 @@ export default function showNote() { // Основное наполнение с
 const styles = StyleSheet.create({ // Таблица стилей
   container: {
     flex: 1,
-    backgroundColor: "#040332",
+    backgroundColor: colors.background,
     alignItems: "center",
     justifyContent: "flex-start",
+    experimental_backgroundImage: "linear-gradient(#0A0F1A, #341913)"
   },
   title: {
     color: "white",

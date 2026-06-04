@@ -1,13 +1,18 @@
 import { Text, View, TextInput } from "react-native";
 import { StyleSheet } from "react-native";
 import { useState } from "react";
+import { useAudioPlayer } from "expo-audio";
 
 import Button from "../components/Button";
 import { createFile } from "@/src/scripts/fileSystem";
+import { colors } from "@/src/globalVars"; 
+
+const addSound = require("@/assets/sounds/add.mp3");
 
 export default function newNote() { // Основное наполнение страницы
   const [noteTitle, setNoteTitle] = useState("");
   const [noteText, setNoteText] = useState("");
+  const player = useAudioPlayer(addSound);
 
   let create = () => { // Создание файла заметки
     if ((noteTitle === "") || (noteText === "")) {
@@ -19,6 +24,8 @@ export default function newNote() { // Основное наполнение с�
     }
     let content = [noteTitle, noteText]
     createFile(`${noteTitle}.txt`, content)
+    player.seekTo(0);
+    player.play();
   }   
 
   return (
@@ -42,7 +49,7 @@ export default function newNote() { // Основное наполнение с�
           value={noteText}
           onChangeText={text => setNoteText(text)}
         />
-        <Button label="Создать!" backgroundColor="#e05807" onPress={create}/>
+        <Button label="Создать!" backgroundColor={colors.lava} onPress={create}/>
       </View>
   );
 }
@@ -50,9 +57,10 @@ export default function newNote() { // Основное наполнение с�
 const styles = StyleSheet.create({ // Таблица стилей
   container: {
     flex: 1,
-    backgroundColor: "#040332",
+    backgroundColor: colors.background,
     alignItems: "center",
     justifyContent: "flex-start",
+    experimental_backgroundImage: "linear-gradient(#0A0F1A, #341913)"
   },
   title: {
     color: "white",
@@ -67,7 +75,7 @@ const styles = StyleSheet.create({ // Таблица стилей
   input_text: {
     height: 200,
     width: 300,
-    borderColor: "#e05807",
+    borderColor: colors.lava,
     borderWidth: 1,
     paddingHorizontal: 10,
     marginBottom: 20,
@@ -79,7 +87,7 @@ const styles = StyleSheet.create({ // Таблица стилей
   input_title: {
     height: 40,
     width: 300,
-    borderColor: "#e05807",
+    borderColor: colors.lava,
     borderWidth: 1,
     paddingHorizontal: 10,
     marginBottom: 20,
