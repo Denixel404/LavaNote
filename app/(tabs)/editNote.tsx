@@ -32,13 +32,10 @@ export default function editNote() { // Основное наполнение с
     [filename]) // Зависимость от изменяемой переменной
   );
 
-  let edit = async () => { // Сохранение изменений
+  const edit = async () => { // Сохранение изменений
     if ((noteTitle === "") || (noteText === "")) { // Валидация данных
       alert("Поля не должны быть пустыми!");
       return;
-    } else if (noteTitle.length > 14) {
-      alert("Заголовок слишком длинный!");
-      return
     }
     let content = `${noteTitle}\n${noteText}`
     await writeFile(filename, content); // Перезапись файла

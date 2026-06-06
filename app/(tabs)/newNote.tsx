@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Audio } from "expo-av";
 
 import Button from "../components/Button";
-import { createFile, deleteFile } from "@/src/scripts/fileSystem";
+import { createFile } from "@/src/scripts/fileSystem";
 import { colors } from "@/src/globalVars"; 
 
 export default function newNote() { // Основное наполнение страницы
@@ -12,7 +12,7 @@ export default function newNote() { // Основное наполнение с�
   const [noteText, setNoteText] = useState("");
   const [addSound, setAddSound] = useState(null);
 
-  useEffect(() => {
+  useEffect(() => { // Загрузка звуков
       const loadSound = async () => {
         const {sound: loadedSound} = await Audio.Sound.createAsync(require("@/assets/sounds/add.mp3"));
         setAddSound(loadedSound);
@@ -24,17 +24,15 @@ export default function newNote() { // Основное наполнение с�
     }, []);
 
   let create = async () => { // Создание файла заметки
-    if ((noteTitle === "") || (noteText === "")) {
+    if ((noteTitle === "") || (noteText === "")) { // Валидация
       alert("Поля не должны быть пустыми!");
       return;
-    } else if (noteTitle.length > 14) {
-      alert("Заголовок слишком длинный!");
-      return
-    }
+    };
+    
     let content = [noteTitle, noteText]
     createFile(`${noteTitle}.txt`, content)
-    
-    const playAddSound = async () => {
+    // Функция для проигрывания звука
+    const playAddSound = async () => { 
       if (addSound) {
         try {
           // Перематываем звук в самое начало
@@ -46,10 +44,13 @@ export default function newNote() { // Основное наполнение с�
         }
       }
     };
-    playAddSound();
+    playAddSound(); // Проиграть звук
+    // Очистка
+    setNoteTitle("");
+    setNoteText("");
   }   
 
-  return (
+  return ( // Страница
       <View style={styles.container}>
         <Text style={styles.title}>Создайте новую заметку</Text>
         <Text style={styles.text}>1. Подберите идеальный заголовок</Text>

@@ -1,7 +1,7 @@
 /* eslint-disable import/no-unresolved */
-import { FlatList, Text, View } from "react-native";
+import { FlatList, Text, View, TouchableOpacity, Animated } from "react-native";
 import { StyleSheet, Alert } from "react-native";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useState, useCallback } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Audio } from "expo-av";
@@ -9,8 +9,10 @@ import { Audio } from "expo-av";
 import Button from "../components/Button";
 import SmallButton from "../components/SmallButton";
 import { getData, deleteFile } from "@/src/scripts/fileSystem";
-import { getDisplayDate } from "@/src/scripts/utils";
+import { getDisplayDate, stabilizeTitle } from "@/src/scripts/utils";
 import { colors } from "@/src/globalVars";
+
+const sec = 1000;
 
 // npx expo start - запуск проекта на локальном  сервере
 
@@ -18,6 +20,9 @@ export default function Index() {
   const nav = useNavigation();
   const [deleteSound, setDeleteSound] = useState(null);
   const [files, setFiles] = useState<File[]>([]);
+  //const [isVisible, setVisible] = useState(false);
+  const spawnAnimation = useRef(new Animated.Value(-30)).current;
+  const opacityAnimation = useRef(new Animated.Value(0)).current;
 
   const showNote = (note: string) => { // Действия кнопки показа заметки
     nav.navigate("showNote", {filename: note}); // Переадресация с передачей аргумента
@@ -46,7 +51,39 @@ export default function Index() {
       };
       loadFiles();
     }, []) // Зависимости
-  )
+  );
+  useEffect(() => {
+    spawnAnimation.setValue(-30);
+    opacityAnimation.setValue(1);
+    Animated.timing(spawnAnimation, {
+      toValue: 0,
+      duration: sec,
+      useNativeDriver: true,
+    }).start();
+    opacityAnimation.setValue(0);
+    Animated.timing(opacityAnimation, {
+      toValue: 1,
+      duration: sec,
+      useNativeDriver: true,
+    }).start();
+  });
+
+  // const spawnAnimationToggle = () => {
+  //   if (isVisible) {
+  //     Animated.timing(spawnAnimation, {
+  //       toValue: 300,
+  //       duration: 500,
+  //       useNativeDriver: true,
+  //     }).start() 
+  //   } else {
+  //     Animated.timing(spawnAnimation, {
+  //       toValue: 0,
+  //       duration: 500,
+  //       useNativeDriver: true,
+  //     }).start()
+  //   };
+  //   setVisible(!isVisible);
+  // };
 
   return (
     <View style={styles.container}>
@@ -55,48 +92,48 @@ export default function Index() {
         data={files}
         keyExtractor={(item) => item.uri} 
         renderItem={({ item }) => (
-          <View style={styles.notes}>
-            <View style={styles.note}>
-              <Text style={styles.note_text}>{item.name}</Text>
-              <Text style={styles.note_text_info}>
-                {getDisplayDate(item.creationTime)}
-              </Text>
-            </View>
-            <View style={styles.notes_btns}>
+          <Animated.View style={{ transform: [{translateX: spawnAnimation}], opacity: opacityAnimation }}>
+            <TouchableOpacity style={styles.notes} onPress={() => showNote(item.name)}>
+              <View style={styles.note}>
+                <Text style={styles.note_text}>{stabilizeTitle(item.name)}</Text>
+                <Text style={styles.note_text_info}>
+                  {getDisplayDate(item.creationTime)}
+                </Text>
+              </View>
+              <View style={styles.notes_btns}>
 
-              <SmallButton name={"trash"} backgroundColor="red" onPress={async () => {
-                Alert.alert(`Вы действительно хотите удалить ${item.name}?`, 
-                "Это действие невозможно отменить", 
-                [
-                  {text: "Отмена", style: "cancel"},
-                  {text: "Удалить", style: "destructive",
-                  onPress: async () => {
-                    await deleteFile(item.name);
-                    
-                    const playDeleteSound = async () => {
-                      if (deleteSound) {
-                        try {
-                          // Перематываем звук в самое начало
-                          await deleteSound.setPositionAsync(0);
-                          // Запускаем воспроизведение
-                          await deleteSound.playAsync();
-                        } catch (error) {
-                          console.error('Ошибка при воспроизведении:', error);
+                <SmallButton name={"edit"} backgroundColor="#f1951d" onPress={() => editNote(item.name)}/>
+                <SmallButton name={"trash"} backgroundColor="#e31313" onPress={async () => {
+                  Alert.alert(`Вы действительно хотите удалить ${item.name}?`, 
+                  "Это действие невозможно отменить", 
+                  [
+                    {text: "Отмена", style: "cancel"},
+                    {text: "Удалить", style: "destructive",
+                    onPress: async () => {
+                      await deleteFile(item.name);
+                      
+                      const playDeleteSound = async () => {
+                        if (deleteSound) {
+                          try {
+                            // Перематываем звук в самое начало
+                            await deleteSound.setPositionAsync(0);
+                            // Запускаем воспроизведение
+                            await deleteSound.playAsync();
+                          } catch (error) {
+                            console.error('Ошибка при воспроизведении:', error);
+                          }
                         }
-                      }
-                    };
-                    playDeleteSound();
-                    const newList = await getData();
-                    setFiles(newList);
-                  }
-                }]
-                )}} 
-                />
-
-              <SmallButton name={"eye"} backgroundColor="gray" onPress={() => showNote(item.name) } />
-              <SmallButton name={"edit"} backgroundColor="#ecb40b" onPress={() => editNote(item.name)}/>
-            </View>
-          </View>
+                      };
+                      playDeleteSound();
+                      const newList = await getData();
+                      setFiles(newList);
+                    }
+                  }]
+                  )}} 
+                  />
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
         )}
         ListEmptyComponent={<Text style={styles.empty}>Здесь пока пусто. Начните работать!</Text>}
       />
@@ -117,7 +154,7 @@ const styles = StyleSheet.create({
     experimental_backgroundImage: "linear-gradient(#0A0F1A, #341913)"
   },
   notes: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "rgba(255, 255, 255, 0.06)",
     backdropFilter: "blur(10px)",
     flex: 2,
     flexDirection: "row",
@@ -128,7 +165,7 @@ const styles = StyleSheet.create({
     width: 325,
     marginBottom: 5,
     marginTop: 5,
-    gap: 20,
+    gap: 47,
   },
   note: {
     // Стили для кнопок

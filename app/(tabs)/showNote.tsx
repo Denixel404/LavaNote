@@ -1,7 +1,9 @@
 import { Text, View } from "react-native";
 import { StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useFonts } from "expo-font";
 
 import { readFile } from "@/src/scripts/fileSystem";
 import { colors } from "@/src/globalVars";
@@ -11,16 +13,23 @@ export default function showNote() { // Основное наполнение с
   const [content, setContent] = useState<string>();
   const title = filename.replace(".txt", "");
 
-  useEffect(() => {
-    if (filename) {
-      const load = async () => {
-        let loadedContent = await readFile(filename);
-        loadedContent = loadedContent.replace(title, "")
-        setContent(loadedContent);
+  const [fontsLoaded] = useFonts({
+      "IBMPlexMono-Bold": require("@/assets/fonts/IBMPlexMono-Bold.ttf"),
+      "IBMPlexMono-Medium": require("@/assets/fonts/IBMPlexMono-Medium.ttf"),
+    });
+
+  useFocusEffect(
+    useCallback(() => {
+      if (filename) {
+        const load = async () => {
+          let loadedContent = await readFile(filename);
+          loadedContent = loadedContent.replace(title, "")
+          setContent(loadedContent);
+        };
+        load();
       };
-      load();
-    }
-  }, [filename]);
+    }, [filename])
+  );
 
   return (
       <View style={styles.container}>
@@ -41,11 +50,13 @@ const styles = StyleSheet.create({ // Таблица стилей
   title: {
     color: "white",
     fontSize: 32,
+    fontFamily: "IBMPlexMono-Bold",
   },
   text: {
     color: "#fff",
     fontSize: 18,
     marginTop: 30,
-    textAlign: "center"
+    textAlign: "center",
+    fontFamily: "IBMPlexMono-Medium"
   },
 })

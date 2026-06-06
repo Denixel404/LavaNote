@@ -1,5 +1,6 @@
 import { Text, View, TouchableOpacity, Linking } from "react-native";
 import { StyleSheet, Alert } from "react-native";
+import { useFonts } from "expo-font";
 import Constants from 'expo-constants';
 
 import SocialLink from "@/app/components/Links";
@@ -18,10 +19,18 @@ const feedback = () => {
 }
 
 export default function Settings() { // Основное наполнение страницы
+  const [fontsLoaded] = useFonts({
+    "IBMPlexMono-Bold": require("@/assets/fonts/IBMPlexMono-Bold.ttf"),
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.banner}>
-        <Text style={styles.title}>О приложении</Text>
+        <Text style={styles.title}>LavaNote</Text>
         <Text style={styles.text}>Версия: {Constants.expoConfig?.version}</Text>
       </View>
 
@@ -56,16 +65,17 @@ const styles = StyleSheet.create({ // Таблица стилей
   title: {
     color: "#fff",
     fontSize: 32,
+    fontFamily: "IBMPlexMono-Bold",
   },
   text: {
     color: "#fff",
   },
   feedback: {
     marginTop: 50,
-    backgroundColor: "#1b1e2e",
+    backgroundColor: colors.background2,
     padding: 30,
     borderRadius: 50,
     borderWidth: 2,
-    borderColor: "#e05807"
+    borderColor: colors.lava
   }
 })
