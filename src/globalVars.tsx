@@ -6,4 +6,5 @@ export const colors = {
     "color2": "#FFD54F",
     "color3": "#222634",
     "basetext": "#f3f3f3",
+    "secondtext": "#a8a8a8"
 }

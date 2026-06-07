@@ -53,21 +53,19 @@ export default function newNote() { // Основное наполнение с�
   return ( // Страница
       <View style={styles.container}>
         <Text style={styles.title}>Создайте новую заметку</Text>
-        <Text style={styles.text}>1. Подберите идеальный заголовок</Text>
         <TextInput 
           style={styles.input_title}
-          placeholder="Место для заголовка"
-          placeholderTextColor="white"
+          placeholder="Введите здесь имя заметки"
+          placeholderTextColor={colors.secondtext}
           value={noteTitle}
           onChangeText={text => setNoteTitle(text)}
         />
-        <Text style={styles.text}>2. Опишите свои мысли</Text>
         <TextInput 
           style={styles.input_text}
           multiline={true}
           scrollEnabled={true}
-          placeholder="Текст заметки"
-          placeholderTextColor="white"
+          placeholder="А здесь напишите её текст"
+          placeholderTextColor={colors.secondtext}
           value={noteText}
           onChangeText={text => setNoteText(text)}
         />

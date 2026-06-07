@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     width: "100%"
   },
   note_text_info: {
-    color: "#a8a8a8",
+    color: colors.secondtext,
     width: "100%"
   },
   text: {
