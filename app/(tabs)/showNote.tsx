@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { Text, View, ScrollView } from "react-native";
 import { StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useState, useEffect, useCallback } from "react";
@@ -33,8 +33,10 @@ export default function showNote() { // Основное наполнение с
 
   return (
       <View style={styles.container}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.text}>{content}</Text>
+        <ScrollView style={styles.scroll}>
+          <Text style={styles.title} selectable={true}>{title}</Text>
+          <Text style={styles.text} selectable={true}>{content}</Text>
+        </ScrollView>
       </View>
   );
 }
@@ -45,9 +47,11 @@ const styles = StyleSheet.create({ // Таблица стилей
     backgroundColor: colors.background,
     alignItems: "center",
     justifyContent: "flex-start",
-    experimental_backgroundImage: "linear-gradient(#0A0F1A, #341913)"
+    experimental_backgroundImage: "linear-gradient(#0A0F1A, #341913)",
+    padding: 8,
   },
   title: {
+    textAlign: "center",
     color: "white",
     fontSize: 32,
     fontFamily: "IBMPlexMono-Bold",
@@ -55,8 +59,10 @@ const styles = StyleSheet.create({ // Таблица стилей
   text: {
     color: "#fff",
     fontSize: 18,
-    marginTop: 30,
-    textAlign: "center",
+    marginTop: 0,
+    textAlign: "left",
     fontFamily: "IBMPlexMono-Medium"
   },
+  scroll: {
+  }
 })

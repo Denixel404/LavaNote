@@ -2,7 +2,7 @@
   "expo": {
     "name": "LavaNote",
     "slug": "Lavanote",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "orientation": "portrait",
     "scheme": "lavanote",
     "userInterfaceStyle": "automatic",
@@ -13,9 +13,9 @@
       "favicon": "./assets/images/favicon.png"
     },
     "splash": {
-      "image": "./assets/images/white_splash.png",
+      //"image": "./assets/images/white_splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#0A0F1A"
     },
     "ios": {
       "supportsTablet": true,
