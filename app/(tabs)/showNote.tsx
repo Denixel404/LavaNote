@@ -9,9 +9,14 @@ import { readFile } from "@/src/scripts/fileSystem";
 import { colors } from "@/src/globalVars";
 
 export default function showNote() { // Основное наполнение страницы
+  let title = null;
+  let noteMassive = [];
   const { filename } = useLocalSearchParams();
   const [content, setContent] = useState<string>();
-  const title = filename.replace(".txt", "");
+  const expansion = filename.slice(-4);
+  console.log(`Get expansion: ${expansion}`);
+  if (expansion === ".txt") { title = filename.replace(".txt", ""); }
+  else if (expansion === "json") { title = filename.replace(".json", "")}
 
   const [fontsLoaded] = useFonts({
       "IBMPlexMono-Bold": require("@/assets/fonts/IBMPlexMono-Bold.ttf"),
@@ -23,14 +28,21 @@ export default function showNote() { // Основное наполнение с
       if (filename) {
         const load = async () => {
           let loadedContent = await readFile(filename);
-          loadedContent = loadedContent.replace(title, "")
-          setContent(loadedContent);
+          console.log(`content: ${loadedContent}`)
+          if (expansion === ".txt") { // Загрузка содержимого для старого формата
+            loadedContent = loadedContent.replace(title, "");
+            setContent(loadedContent);
+          }
+          else if (expansion === "json") { // Загрузка содержимого для нового формата
+            noteMassive = JSON.parse(loadedContent);
+            setContent(noteMassive["text"]);
+          }
+          console.log(`content: ${content}`);
         };
         load();
       };
     }, [filename])
   );
-
   return (
       <View style={styles.container}>
         <ScrollView style={styles.scroll}>

@@ -12,21 +12,32 @@ export default function editNote() { // Основное наполнение с
   const [noteTitle, setNoteTitle] = useState("");
   const [noteText, setNoteText] = useState("");
   const [old_title, setOldTitle] = useState(noteText);
+  const [note, setNote] = useState<Record<string, string>>({});
   const { filename } = useLocalSearchParams();
+  const expansion = filename.slice(-4); // Расширение файла
+  // ".txt" - для старых версий приложения до версии 2.х.х
+  // "json" - новый формат заметок после версии 2.х.х
 
   const nav = useNavigation();
 
   useFocusEffect( // Перерендеринг страницы в случае открытия редактора для другой заметки
     useCallback(() => {
       const load = async () => {
-        const content = await readFile(filename);
+        const content = await readFile(filename); // Получение данных из файла
+        const norm_content = JSON.parse(content); // Перевод данных в массив
+        if (expansion === "json") { setNote(norm_content); console.log(`Load JSON: ${note}`)}
         //console.log(`LOAD:\n${content}\n from ${filename}`);
-        let structure = content.split('\n');
-        setNoteTitle(structure[0]);
-        setOldTitle(structure[0]);
+        if (expansion == ".txt") { // Парсинг старого формата в txt 
+          let structure = content.split('\n');
+          setNoteTitle(structure[0]);
+          setOldTitle(structure[0]);
 
-        structure.splice(0, 1);
-        setNoteText(structure.join('\n'));
+          structure.splice(0, 1);
+          setNoteText(structure.join('\n'));
+        } else if (expansion === "json") { // Получение данных согласно новому формату заметок
+          setNoteTitle(norm_content["title"]);
+          setNoteText(norm_content["text"]);
+        }
       }; 
       load()}, 
     [filename]) // Зависимость от изменяемой переменной
@@ -37,10 +48,17 @@ export default function editNote() { // Основное наполнение с
       alert("Поля не должны быть пустыми!");
       return;
     }
-    let content = `${noteTitle}\n${noteText}`
-    await writeFile(filename, content); // Перезапись файла
-    if (!(noteTitle === old_title)) await renameFile(filename, `${noteTitle}.txt`); // Проверка на изменение имени файла
-    nav.navigate("index");
+    if (expansion === ".txt") { // Перевод в новый формат данных для работы с json 
+      let content = {"title": noteTitle, "text": noteText, "category": []}
+      await writeFile(filename, JSON.stringify(content)); // Перезапись файла
+      await renameFile(filename, `${noteTitle}.json`); // Смена расширения на удобное
+    } else if (expansion === "json") {
+      const updatedNote = {...note, "title": noteTitle, "text": noteText}; // Обновлённый массив
+      //console.log(`after ${note}`);
+      await writeFile(filename, JSON.stringify(updatedNote)); // Сохранение изменений в json
+      if (old_title != noteTitle) {await renameFile(filename, `${noteTitle}.json`)};
+    }
+    nav.navigate("index"); // Переадресация обратно
   }   
 
   return (

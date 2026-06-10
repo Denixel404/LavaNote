@@ -4,13 +4,14 @@ import { router } from "expo-router";
 const folder_name = "LavaNote"; // Имя папки с данными приложения
 const dir = `${Paths.document}${folder_name}`; // Путь к основной папке
 
-export async function createFile(filenane: string, content: string[]) { // Создание новой заметки
+export async function createFile(filename: string, content: string[]) { // Создание новой заметки
     console.log("");
     const folder = new Directory(Paths.document, folder_name) 
     await folder.create({ intermediates: true, idempotent: true }); // Создани основной папки если ее нет
-    console.log("FileSystem: folder ready")
+    console.log("FileSystem: folder ready");
+    const noteMassive = {"title": content[0], "text": content[1], "category": []}; 
     
-    const file = new File(folder, filenane);
+    const file = new File(folder, filename);
     if (!(await file.exists)){ // Проверка на существование файла
         await file.create();
         console.log("[i] FileSystem: new file was created")
@@ -18,10 +19,11 @@ export async function createFile(filenane: string, content: string[]) { // Со�
         console.warn("[WARN] FileSystem: file already exist")
     }
 
-    await file.write(`${content[0]}\n${content[1]}`); // Запись информации в файл
+    await file.write(JSON.stringify(noteMassive)); // Запись информации в файл
     const cont = await file.text(); // Получение данных из файла
+    const contParse = JSON.parse(cont);
     console.log(`FileSystem: file saved in ${file.uri}`);
-    console.log(`FileSystem: read file\n${cont}\n`);
+    console.log(`FileSystem: read file\n${contParse}\n`);
     router.navigate("../"); // Переадресация обратно
     //console.log(deleteFolder());
     //console.log(`FileSystem dir: ${getData()}`);

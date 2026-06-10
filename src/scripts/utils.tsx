@@ -12,7 +12,7 @@ export const getDisplayDate = (timestamp: number) => {
 
 export const stabilizeTitle = (title: string) => { // Обрезка длины заголовка
   const max = 16; // максимальная длина с учётом приписки .txt
-  const formated_title = title.replace(".txt", "")
+  const formated_title = title//.replace(".txt", "")
   if (formated_title.length > max) {
     const cutText = formated_title.substring(0, max - 3) + "...";
     return cutText;

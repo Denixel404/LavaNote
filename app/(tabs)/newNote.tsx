@@ -30,7 +30,7 @@ export default function newNote() { // Основное наполнение с�
     };
     
     let content = [noteTitle, noteText]
-    createFile(`${noteTitle}.txt`, content)
+    createFile(`${noteTitle}.json`, content)
     // Функция для проигрывания звука
     const playAddSound = async () => { 
       if (addSound) {
