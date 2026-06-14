@@ -4,6 +4,37 @@ import { router } from "expo-router";
 const folder_name = "LavaNote"; // Имя папки с данными приложения
 const dir = `${Paths.document}${folder_name}`; // Путь к основной папке
 
+export async function fileSystemInit() {
+    console.log("Initialization file structure...");
+    const main_folder = new Directory(Paths.document, folder_name);
+    if (!(await main_folder.exists)) {
+        await main_folder.create({ intermediates: true, idempotent: true });
+        console.log("FileSystem: main folder was created");
+    } else {
+        console.log("FileSystem: main folder already exists")
+    }
+
+    const data_folder = new Directory(Paths.document.uri + folder_name, "data");
+    if (!(data_folder.exists)) {
+        await data_folder.create({ intermediates: true, idempotent: true });
+        console.log("FileSystem: data folder was created");
+    } else {
+        console.log("FileSystem: data folder already exists");
+    }
+
+    const tasks_folder = new Directory(Paths.document.uri + folder_name + "/" + "data", "tasks");
+    if (!(tasks_folder.exists)) { 
+        await tasks_folder.create({ intermediates: true, idempotent: true });
+        console.log("FileSystem: tasks folder was created");
+    } else {
+        console.log("FileSystem: tasks folder already exists");
+    }
+    // console.log(`FileSystem: ${folder_name}: ${main_folder.list()}`);
+    // console.log(`FileSystem: data: ${data_folder.list()}`);
+    // console.log(`FileSystem: tasks: ${tasks_folder.list()}`);
+    console.log("Initialization file structure complete!\n");
+}
+
 export async function createFile(filename: string, content: string[]) { // Создание новой заметки
     console.log("");
     const folder = new Directory(Paths.document, folder_name) 

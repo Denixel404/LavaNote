@@ -8,7 +8,7 @@ import { Audio } from "expo-av";
 
 import Button from "../components/Button";
 import SmallButton from "../components/SmallButton";
-import { getData, deleteFile } from "@/src/scripts/fileSystem";
+import { getData, deleteFile, fileSystemInit } from "@/src/scripts/fileSystem";
 import { getDisplayDate, stabilizeTitle } from "@/src/scripts/utils";
 import { colors } from "@/src/globalVars";
 
@@ -20,6 +20,7 @@ export default function Index() {
   const nav = useNavigation();
   const [deleteSound, setDeleteSound] = useState(null);
   const [files, setFiles] = useState<File[]>([]);
+  const [accept_fileInit, setAccept_fileInit] = useState(true);
   //const [isVisible, setVisible] = useState(false);
   const spawnAnimation = useRef(new Animated.Value(-30)).current;
   const opacityAnimation = useRef(new Animated.Value(0)).current;
@@ -31,6 +32,11 @@ export default function Index() {
   const editNote = (file: string) => { // Действия кнопки редактирования заметки
     nav.navigate("editNote", {filename: file}); // Переадресация с передачей аргумента
   }
+
+  useEffect(() => { // Создание необходимых папок приложения
+    if (accept_fileInit) fileSystemInit();
+    setAccept_fileInit(false);
+  });
 
   useEffect(() => {
     const loadSound = async () => {

@@ -26,29 +26,48 @@ export default function TabLayout() {
                     title: "Заметки", 
                     tabBarIcon: ({ color, focused }) => (<Ionicons name={focused? "home-sharp": "home-outline"} color={color} size={24} />) 
                     }} />
+            <Tabs.Screen
+                name="tasks_index"
+                options={{
+                    title: "Напоминания",
+                    tabBarIcon: ({ color, focused }) => (<Ionicons name={focused? "notifications": "notifications-outline"} color={color} size={24}/>)
+                }}
+            />
             <Tabs.Screen 
                 name="settings" 
                 options={{ title: "О приложении",
                 tabBarIcon: ({ color, focused }) => (<Ionicons name={focused? "information-circle": "information-circle-outline"} color={color} size={24} />)
-                }} />
+                }} 
+            />
             <Tabs.Screen 
                 name="newNote"
                 options={{
                     title: "Новая заметка",
                     href: null,
-                }} />
+                }} 
+            />
             <Tabs.Screen 
                 name="showNote"
                 options={{
                     title: "Просмотр",
                     href: null,
-                }} />
+                }} 
+            />
             <Tabs.Screen 
                 name="editNote"
                 options={{
                     title: "Редактирование",
                     href: null,
-                }} />
+                }} 
+            />
+
+            <Tabs.Screen
+                name="newTask"
+                options={{
+                    title: "Новое напоминание",
+                    href: null,
+                }}
+            />
         </Tabs>
     );
 }
