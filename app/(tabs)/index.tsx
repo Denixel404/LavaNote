@@ -5,6 +5,7 @@ import React, { useEffect, useRef } from "react";
 import { useState, useCallback } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Audio } from "expo-av";
+import * as notifications from "expo-notifications";
 
 import Button from "../components/Button";
 import SmallButton from "../components/SmallButton";
@@ -33,9 +34,15 @@ export default function Index() {
     nav.navigate("editNote", {filename: file}); // Переадресация с передачей аргумента
   }
 
-  useEffect(() => { // Создание необходимых папок приложения
+  useEffect(() => { // Создание необходимых папок приложения и каналов
     if (accept_fileInit) fileSystemInit();
     setAccept_fileInit(false);
+    notifications.setNotificationChannelAsync("default", {
+      name: "main channel",
+      importance: notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
   });
 
   useEffect(() => {

@@ -24,6 +24,8 @@
     "android": {
       "versionCode": 1,
       "package": "com.denixel.lavanote",
+      "permissions": ["RECEIVE_BOOT_COMPLETED", "VIBRATE", "SСHEDULE_EXACT_ALARM", "POST_NOTIFICATIONS"],
+      "useNextNotificationsApi": true,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -37,6 +39,7 @@
       "expo-router",
       "expo-font",
       "@react-native-community/datetimepicker",
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true,

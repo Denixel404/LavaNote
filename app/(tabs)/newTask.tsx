@@ -1,17 +1,43 @@
-import { View, Text, StyleSheet, TextInput, Platform } from "react-native";
+import { View, Text, StyleSheet, TextInput, Platform, Alert } from "react-native";
 import { Button } from "react-native"; 
 import { useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import * as notifications from "expo-notifications";
+import React, { useEffect, useCallback } from "react";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
 import { colors, title_fontSize } from "@/src/globalVars";
 import { getDisplayDate, checkZero } from "@/src/scripts/utils";
+import { notificationsInit } from "@/src/scripts/notificationsSystem";
+import { deleteFolder } from "@/src/scripts/fileSystem";
+import { requestNotificationsPermission } from "@/src/scripts/permissions";
+import { saveDataReminder } from "@/src/scripts/fileSystem";
+
+notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldShowAlert: true,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function tasks_index() {
+  const nav = useNavigation();
   const [taskTitle, setTaskText] = useState("");
   const [taskDate, setTaskDate] = useState(new Date());
   const [taskDateTime, setTaskDateTime] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+
+  useEffect(() => {
+    notificationsInit();
+  }, []);
+
+  useFocusEffect( // Динамическое обновление списка заметок
+      useCallback(() => {
+        setTaskText("");
+      }, []) // Зависимости
+    );
 
   const onDateChange = (event, selectedDate) => {
     const currentDate = new Date(selectedDate);
@@ -26,15 +52,49 @@ export default function tasks_index() {
     setTaskDate(new Date(currentTime));
     setShowTimePicker(false);
   };
-  const createTask = () => {
-    
+  const createTask = async (text: string, date: Date) => {
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    const fileID = Date.now(); 
+    const finaldate = Math.floor((date.getTime() - Date.now()) / 1000);
+    if (date.getTime() <= Date.now()) console.log("Uncorrect plan date"); 
+    else {
+      // console.log(`Now: ${Date.now()}`);
+      // console.log(`Get date: ${date.getTime()}`);
+      // console.log(`Step: ${date.getTime() - Date.now()}`);
+    }
+    try {
+      const diff = date.getTime() - Date.now();
+      const id = await notifications.scheduleNotificationAsync({
+        content: {
+          title: "📌 LavaNote напоминает",
+          body: text,
+        },
+        trigger: {
+          type: "timeInterval",
+          seconds: Math.round(diff / 1000),
+          //timestamp: finaldate,
+          repeats: false,
+          channelId: "default",
+        }
+      });
+      const triggerData = {
+        "id": id,
+        "text": text,
+        "date": date,
+    };
+    saveDataReminder(triggerData, `LNTask${fileID}`);
+    } catch (error) {
+      console.error(`notification not schedule\nError: ${error}`);
+    }
+    nav.navigate("tasks_index");
   };
 
   return (
     <View style={styles.container}>
     <Text style={styles.title}>Создайте новое напоминание</Text>
       <View style={styles.example}>
-        <Text style={styles.example_title}>LavaNote</Text>
+        <Text style={styles.example_title}>📌 LavaNote напоминает!</Text>
         <Text style={styles.text}>{taskTitle}</Text>
       </View>
       <Text style={styles.text}>{`Сигнал прозвучит: ${getDisplayDate(taskDate.getTime())}`}</Text>
@@ -50,7 +110,7 @@ export default function tasks_index() {
           <Button title="Выберите дату" onPress={() => setShowDatePicker(true)} color={colors.lava} />
           <Button title="Выберите время" onPress={() => setShowTimePicker(true)} color={colors.lava} />
         </View>
-        <Button title="Сохранить" onPress={() => createTask()} color={colors.lava} />
+        <Button title="Сохранить" onPress={() => createTask(taskTitle, taskDate)} color={colors.lava} />
         {showDatePicker && (
           <DateTimePicker
             value={taskDate}
@@ -93,7 +153,7 @@ const styles = StyleSheet.create({
   },
   timePicker: {
     flexDirection: "row",
-    gap: 10,
+    //: 10,
   },
   text: {
     color: colors.white,
