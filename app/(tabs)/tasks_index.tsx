@@ -14,6 +14,7 @@ export default function tasks_index() {
   const nav = useNavigation();
   const [files, setFiles] = useState<File[]>([]);
   const [deleteSound, setDeleteSound] = useState(null);
+  const [taskText, setTaskText] = useState<Record<string, string>>({});
 
   useFocusEffect( // Динамическое обновление списка заметок
     useCallback(() => {
@@ -21,6 +22,18 @@ export default function tasks_index() {
       const loadFiles = async () => {
         const loadedFiles = await getTasks();
         setFiles(loadedFiles);
+
+        const names:  Record<string, string> = {};
+        for (const file of loadedFiles) {
+          try {
+            const task = await readTask(file.name);
+            names[file.name] = task["text"] || "Напоминание";
+          } catch (error) {
+            console.error(`File load error: ${file.name}, ${error}`);
+            names[file.name] = "Ошибка";
+          }
+        }
+        setTaskText(names);
       };
       loadFiles();
     }, []) // Зависимости
@@ -52,7 +65,7 @@ export default function tasks_index() {
       renderItem={({ item }) => (
         <View style={styles.notification}>
           <View style={styles.noteInfo}>
-            <Text style={styles.text}>{stabilizeTitle(getTaskText(item.name))}</Text>
+            <Text style={styles.text}>{stabilizeTitle(taskText[item.name], "task") || "Загружаем..."}</Text>
             <Text style={styles.second_line}>{getInfo(item.name)}</Text>
           </View>
           <SmallButton name={"trash"} backgroundColor="#e31313" onPress={async () => {

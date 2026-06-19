@@ -10,9 +10,11 @@ export const getDisplayDate = (timestamp: number) => {
   return date.toLocaleString('ru-RU', { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 };
 
-export const stabilizeTitle = (title: string) => { // Обрезка длины заголовка
-  const max = 16; // максимальная длина с учётом приписки .txt
-  const formated_title = title//.replace(".txt", "")
+export const stabilizeTitle = (title: string, mode=null) => { // Обрезка длины заголовка
+  if (!title) return "Обработка..."
+  let max = 16; // максимальная длина с учётом приписки .txt
+  if (mode == "task")  max = 24; 
+  const formated_title = title.replace(".json", "");
   if (formated_title.length > max) {
     const cutText = formated_title.substring(0, max - 3) + "...";
     return cutText;

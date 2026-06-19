@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, Platform, Alert } from "react-native";
+import { View, Text, StyleSheet, TextInput, Platform, Alert, ScrollView } from "react-native";
 import { Button } from "react-native"; 
 import { useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -53,15 +53,24 @@ export default function tasks_index() {
     setShowTimePicker(false);
   };
   const createTask = async (text: string, date: Date) => {
+    if (taskTitle.length > 70) {
+      alert("Текст напоминания слишком длинный");
+      return;
+    }  else if (taskTitle.length < 3) {
+      alert("Текст напоминания слишком короткий");
+      return;
+    } 
+
     date.setSeconds(0);
     date.setMilliseconds(0);
     const fileID = Date.now(); 
     const finaldate = Math.floor((date.getTime() - Date.now()) / 1000);
     if (date.getTime() <= Date.now()) console.log("Uncorrect plan date"); 
     else {
-      // console.log(`Now: ${Date.now()}`);
+      console.log(`Create task\nNow: ${getDisplayDate(Date.now())} in timestamp - ${Date.now()}`);
+      console.log(`Get date: ${getDisplayDate(date.getTime())} in timestamp - ${date.getTime()}`)
       // console.log(`Get date: ${date.getTime()}`);
-      // console.log(`Step: ${date.getTime() - Date.now()}`);
+      //console.log(`Step: ${date.getTime() - Date.now()}`);
     }
     try {
       const diff = date.getTime() - Date.now();
@@ -71,9 +80,9 @@ export default function tasks_index() {
           body: text,
         },
         trigger: {
-          type: "timeInterval",
-          seconds: Math.round(diff / 1000),
-          //timestamp: finaldate,
+          type: "date",
+          //seconds: Math.round(diff / 1000),
+          date: date.getTime(),
           repeats: false,
           channelId: "default",
         }
@@ -91,51 +100,65 @@ export default function tasks_index() {
   };
 
   return (
-    <View style={styles.container}>
-    <Text style={styles.title}>Создайте новое напоминание</Text>
-      <View style={styles.example}>
-        <Text style={styles.example_title}>📌 LavaNote напоминает!</Text>
-        <Text style={styles.text}>{taskTitle}</Text>
-      </View>
-      <Text style={styles.text}>{`Сигнал прозвучит: ${getDisplayDate(taskDate.getTime())}`}</Text>
-      <View style={styles.input_container}>
-        <TextInput 
-          style={styles.input_title}
-          placeholder="Введите здесь текст напоминания"
-          placeholderTextColor={colors.secondtext}
-          value={taskTitle}
-          onChangeText={text => setTaskText(text)}
-        />
-        <View style={styles.timePicker}>
-          <Button title="Выберите дату" onPress={() => setShowDatePicker(true)} color={colors.lava} />
-          <Button title="Выберите время" onPress={() => setShowTimePicker(true)} color={colors.lava} />
+    <ScrollView style={styles.scrollView} contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Создайте новое напоминание</Text>
+      <View style={styles.info}>
+        <View style={styles.infoblock}>
+          <Text style={styles.h2}>Важно!</Text>
+          <Text style={styles.text_infoblock}>
+            Созданное вами напоминание работает как push-уведомление. Его нельзя будет 
+            отредактировать, но можно будет отменить и создать новое. Во избежание неудобств 
+            проверяйте все введённые данные перед окончательным сохранением и созданием напоминания.
+          </Text>
         </View>
-        <Button title="Сохранить" onPress={() => createTask(taskTitle, taskDate)} color={colors.lava} />
-        {showDatePicker && (
-          <DateTimePicker
-            value={taskDate}
-            mode="date"
-            display="default"
-            onChange={onDateChange}
-          />
-        )}
-        {showTimePicker && (
-          <DateTimePicker
-            value={taskDateTime}
-            mode="time"
-            display="default"
-            onChange={onTimeChange}
-          />
-        )}
+        <View style={styles.example}>
+          <Text style={styles.example_title}>📌 LavaNote напоминает!</Text>
+          <Text style={styles.text}>{taskTitle}</Text>
+        </View>
+        <Text style={styles.text}>{`Сигнал прозвучит: ${getDisplayDate(taskDate.getTime())}`}</Text>
       </View>
-
-    </View>
+        <View style={styles.input_container}>
+          <TextInput 
+            style={styles.input_title}
+            placeholder="Введите здесь текст напоминания"
+            placeholderTextColor={colors.secondtext}
+            value={taskTitle}
+            onChangeText={text => setTaskText(text)}
+          />
+          <View style={styles.timePicker}>
+            <Button title="Выберите дату" onPress={() => setShowDatePicker(true)} color={"gray"} />
+            <Button title="Выберите время" onPress={() => setShowTimePicker(true)} color={"gray"} />
+          </View>
+          <View style={styles.save}>
+            <Button title="Сохранить" onPress={() => createTask(taskTitle, taskDate)} color={colors.lava} />
+          </View>
+          {showDatePicker && (
+            <DateTimePicker
+              value={taskDate}
+              mode="date"
+              display="default"
+              onChange={onDateChange}
+            />
+          )}
+          {showTimePicker && (
+            <DateTimePicker
+              value={taskDateTime}
+              mode="time"
+              display="default"
+              onChange={onTimeChange}
+            />
+          )}
+        </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  scrollView: {
     flex: 1,
+  },
+  container: {
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
     experimental_backgroundImage: "linear-gradient(#0A0F1A, #341913)",
@@ -148,20 +171,43 @@ const styles = StyleSheet.create({
     height: 100,
     padding: 15,
     borderRadius: 30,
-    marginTop: 20,
+    marginTop: 0,
     marginBottom: 10,
   },
+  info: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  infoblock: {
+    padding: 10,
+    borderLeftColor: "gold",
+    borderWidth: 2,
+    marginBottom: 10,
+    margin: 20,
+    backgroundColor: "#ecd20825"
+  },  
   timePicker: {
     flexDirection: "row",
-    //: 10,
+    gap: 10,
+  },
+  save: {
+    marginBottom: 40,
+  },
+  text_infoblock: {
+    color: "white",
   },
   text: {
     color: colors.white,
     marginBottom: 30,
   },
+  h2: {
+    color: "gold",
+    fontSize: 19,
+  },
   title: {
     color: "white",
-    marginTop: 24,
+    marginTop: 10,
     marginBottom: 10,
     fontSize: title_fontSize,
   },
@@ -175,10 +221,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.lava,
     borderRadius: 10,
-    width: 300,
+    width: 313,
     height: 40,
   },
   input_container: {
     gap: 10,
-  }
+  },
 })
