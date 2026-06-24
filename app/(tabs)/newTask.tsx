@@ -5,6 +5,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import * as notifications from "expo-notifications";
 import React, { useEffect, useCallback } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import * as intentLaunch from "expo-intent-launcher";
 
 import { colors, title_fontSize } from "@/src/globalVars";
 import { getDisplayDate, checkZero } from "@/src/scripts/utils";
@@ -72,12 +73,22 @@ export default function tasks_index() {
       // console.log(`Get date: ${date.getTime()}`);
       //console.log(`Step: ${date.getTime() - Date.now()}`);
     }
+
+    if (Platform.OS === "android") {
+      try {
+        await intentLaunch.startActivityAsync(intentLaunch.ActivityAction.REQUEST_SCHEDULE_EXACT_ALARM);
+      } catch (error) {
+        console.warn(`Permission SCHEDULE_EXACT_ALARM not get: ${error}`);
+      }
+    }
+
     try {
       const diff = date.getTime() - Date.now();
       const id = await notifications.scheduleNotificationAsync({
         content: {
           title: "📌 LavaNote напоминает",
           body: text,
+          priority: notifications.AndroidNotificationPriority.HIGH,
         },
         trigger: {
           type: "date",

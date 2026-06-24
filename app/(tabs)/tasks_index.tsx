@@ -10,30 +10,34 @@ import { deleteTask, getTasks, getTaskText, readTask, deleteFolder } from "@/src
 import { stabilizeTitle, getDisplayDate } from "@/src/scripts/utils";
 import { deleteNotification } from "@/src/scripts/notificationsSystem";
 
+type taskData = {
+    id: string;
+    text: string;
+    date: string;
+    filename: string;
+  };
+
 export default function tasks_index() {
   const nav = useNavigation();
-  const [files, setFiles] = useState<File[]>([]);
   const [deleteSound, setDeleteSound] = useState(null);
-  const [taskText, setTaskText] = useState<Record<string, string>>({});
+  const [tasks, setTasks] = useState<taskData[]>([]);
 
   useFocusEffect( // Динамическое обновление списка заметок
     useCallback(() => {
       //deleteFolder();
       const loadFiles = async () => {
         const loadedFiles = await getTasks();
-        setFiles(loadedFiles);
-
-        const names:  Record<string, string> = {};
-        for (const file of loadedFiles) {
-          try {
-            const task = await readTask(file.name);
-            names[file.name] = task["text"] || "Напоминание";
-          } catch (error) {
-            console.error(`File load error: ${file.name}, ${error}`);
-            names[file.name] = "Ошибка";
-          }
-        }
-        setTaskText(names);
+        const tasksPromises = loadedFiles.map(async (file) => {
+          const task = await readTask(file.name);
+          return {
+            id: task["id"] || "no id",
+            text: task["text"] || "Напоминание",
+            date: task["date"] || new Date().toISOString(),
+            filename: file.name,
+          };
+        });
+        const loadedTasks = await Promise.all(tasksPromises);
+        setTasks(loadedTasks);
       };
       loadFiles();
     }, []) // Зависимости
@@ -60,13 +64,13 @@ export default function tasks_index() {
     <View style={styles.container}>
       
     <FlatList 
-      data={files}
-      keyExtractor={(item) => item.uri} 
+      data={tasks}
+      keyExtractor={(item) => item.filename} 
       renderItem={({ item }) => (
         <View style={styles.notification}>
           <View style={styles.noteInfo}>
-            <Text style={styles.text}>{stabilizeTitle(taskText[item.name], "task") || "Загружаем..."}</Text>
-            <Text style={styles.second_line}>{getInfo(item.name)}</Text>
+            <Text style={styles.text}>{stabilizeTitle(item.text, "task") || "Загрузка..."}</Text>
+            <Text style={styles.second_line}>Сработает {getDisplayDate(Date.parse(item.date))}</Text>
           </View>
           <SmallButton name={"trash"} backgroundColor="#e31313" onPress={async () => {
             Alert.alert("Вы точно хотите удалить напомининание?", 
@@ -75,9 +79,8 @@ export default function tasks_index() {
               {text: "Отмена", style: "cancel"},
               {text: "Удалить", style: "destructive",
               onPress: async () => {
-                const task = await readTask(item.name);
-                await deleteNotification(task["id"]);
-                await deleteTask(item.name);
+                await deleteNotification(item.id);
+                await deleteTask(item.filename);
                 
                 const playDeleteSound = async () => {
                   if (deleteSound) {
@@ -92,8 +95,7 @@ export default function tasks_index() {
                   }
                 };
                 playDeleteSound();
-                const newList = await getTasks();
-                setFiles(newList);
+                setTasks(prev => prev.filter(t => t.filename !== item.filename));
               }
             }]
           )}} />

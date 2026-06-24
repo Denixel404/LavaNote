@@ -2,7 +2,7 @@
   "expo": {
     "name": "LavaNote",
     "slug": "Lavanote",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "orientation": "portrait",
     "scheme": "lavanote",
     "userInterfaceStyle": "automatic",
@@ -24,7 +24,12 @@
     "android": {
       "versionCode": 1,
       "package": "com.denixel.lavanote",
-      "permissions": ["RECEIVE_BOOT_COMPLETED", "VIBRATE", "SСHEDULE_EXACT_ALARM", "POST_NOTIFICATIONS"],
+      "permissions": [
+        "RECEIVE_BOOT_COMPLETED", 
+        "VIBRATE", 
+        "SCHEDULE_EXACT_ALARM", 
+        "POST_NOTIFICATIONS"
+      ],
       "useNextNotificationsApi": true,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
