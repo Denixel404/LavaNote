@@ -16,6 +16,7 @@ import { colors } from "@/src/globalVars";
 const sec = 1000;
 
 // npx expo start - запуск проекта на локальном  сервере
+// npx expo run:android - запуск на андроид
 
 export default function Index() {
   const nav = useNavigation();
