@@ -13,7 +13,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "splash": {
-      "image": "./assets/images/white_splash.png",
+      "image": "./assets/images/dark_splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#0A0F1A"
     },
@@ -25,9 +25,9 @@
       "versionCode": 1,
       "package": "com.denixel.lavanote",
       "permissions": [
-        "RECEIVE_BOOT_COMPLETED", 
-        "VIBRATE", 
-        "SCHEDULE_EXACT_ALARM", 
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "SCHEDULE_EXACT_ALARM",
         "POST_NOTIFICATIONS"
       ],
       "useNextNotificationsApi": true,
@@ -44,7 +44,8 @@
       "expo-router",
       "expo-font",
       "@react-native-community/datetimepicker",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,

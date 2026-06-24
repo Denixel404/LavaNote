@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, Platform, Alert, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TextInput, Platform, ScrollView } from "react-native";
 import { Button } from "react-native"; 
 import { useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -10,8 +10,6 @@ import * as intentLaunch from "expo-intent-launcher";
 import { colors, title_fontSize } from "@/src/globalVars";
 import { getDisplayDate, checkZero } from "@/src/scripts/utils";
 import { notificationsInit } from "@/src/scripts/notificationsSystem";
-import { deleteFolder } from "@/src/scripts/fileSystem";
-import { requestNotificationsPermission } from "@/src/scripts/permissions";
 import { saveDataReminder } from "@/src/scripts/fileSystem";
 
 notifications.setNotificationHandler({
@@ -71,12 +69,13 @@ export default function tasks_index() {
       console.log(`Create task\nNow: ${getDisplayDate(Date.now())} in timestamp - ${Date.now()}`);
       console.log(`Get date: ${getDisplayDate(date.getTime())} in timestamp - ${date.getTime()}`)
       // console.log(`Get date: ${date.getTime()}`);
-      //console.log(`Step: ${date.getTime() - Date.now()}`);
+      // console.log(`Step: ${date.getTime() - Date.now()}`);
     }
 
     if (Platform.OS === "android") {
       try {
         await intentLaunch.startActivityAsync(intentLaunch.ActivityAction.REQUEST_SCHEDULE_EXACT_ALARM);
+        console.log("Get permission SCHEDULE_EXACT_ALARM")
       } catch (error) {
         console.warn(`Permission SCHEDULE_EXACT_ALARM not get: ${error}`);
       }
