@@ -43,6 +43,7 @@ app-example
 # generated native folders
 /ios
 /android
+/backups
 
 # keystore
 my-release-key.keystore
