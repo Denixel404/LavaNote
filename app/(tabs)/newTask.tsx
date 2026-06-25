@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, Platform, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TextInput, Platform, ScrollView, Alert, useWindowDimensions } from "react-native";
 import { Button } from "react-native"; 
 import { useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -6,6 +6,7 @@ import * as notifications from "expo-notifications";
 import React, { useEffect, useCallback } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import * as intentLaunch from "expo-intent-launcher";
+import { useScheduleExactAlarmPermission } from "expo-exact-alarms-permission"
 
 import { colors, title_fontSize } from "@/src/globalVars";
 import { getDisplayDate, checkZero } from "@/src/scripts/utils";
@@ -22,6 +23,7 @@ notifications.setNotificationHandler({
 
 export default function tasks_index() {
   const nav = useNavigation();
+  const hasScheduleExactAlarm = useScheduleExactAlarmPermission();
   const [taskTitle, setTaskText] = useState("");
   const [taskDate, setTaskDate] = useState(new Date());
   const [taskDateTime, setTaskDateTime] = useState(new Date());
@@ -74,8 +76,22 @@ export default function tasks_index() {
 
     if (Platform.OS === "android") {
       try {
-        await intentLaunch.startActivityAsync(intentLaunch.ActivityAction.REQUEST_SCHEDULE_EXACT_ALARM);
-        console.log("Get permission SCHEDULE_EXACT_ALARM")
+        if (!hasScheduleExactAlarm) {
+          Alert.alert(
+            "Инструкция",
+            "На операционной системе android 12 и выше для создания напоминаний требуется особое разрешение. Сейчас вам будет необходимо выбрать приложение LavaNote в списке и выдать ему это разрешение. Без него напоминания могут работать некорректно.",
+            [
+              {text: "Ок", style: "default", 
+                onPress: async () => {
+                  await intentLaunch.startActivityAsync(intentLaunch.ActivityAction.REQUEST_SCHEDULE_EXACT_ALARM);
+                }
+              }
+            ]
+          )
+          console.log("Get permission SCHEDULE_EXACT_ALARM");
+        } else {
+          console.log("Permission SCHEDULE_EXACT_ALARM already get");
+        }
       } catch (error) {
         console.warn(`Permission SCHEDULE_EXACT_ALARM not get: ${error}`);
       }
@@ -108,6 +124,16 @@ export default function tasks_index() {
     }
     nav.navigate("tasks_index");
   };
+
+  // const { width } = useWindowDimensions();
+  // const taskInput = {
+  //   color: colors.white,
+  //   borderWidth: 2,
+  //   borderColor: colors.lava,
+  //   borderRadius: 10,
+  //   width: width > 600? 550 : 313,
+  //   height: width > 600? 60 : 40,
+  // };
 
   return (
     <ScrollView style={styles.scrollView} contentContainerStyle={styles.container}>

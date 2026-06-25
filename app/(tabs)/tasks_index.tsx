@@ -9,7 +9,7 @@ import Button from "../components/Button";
 import { deleteTask, getTasks, getTaskText, readTask, deleteFolder } from "@/src/scripts/fileSystem";
 import { stabilizeTitle, getDisplayDate } from "@/src/scripts/utils";
 import { deleteNotification } from "@/src/scripts/notificationsSystem";
-
+// Объект напоминания
 type taskData = {
     id: string;
     text: string;
@@ -27,23 +27,29 @@ export default function tasks_index() {
       //deleteFolder();
       const loadFiles = async () => {
         const loadedFiles = await getTasks();
-        const tasksPromises = loadedFiles.map(async (file) => {
+        const tasksPromises = loadedFiles.map(async (file) => { // Загрузка данных из файлов
           const task = await readTask(file.name);
-          return {
+          const taskDate = Date.parse(task["date"]);
+          if (taskDate < Date.now()) { // Удаление файла с информацией для просроченных уведомлений
+            await deleteTask(file.name); // Удаляем файл
+            await deleteNotification(task["id"]); // Отменяем уведомление (на всякий случай)
+            return undefined;
+          }
+          return { // Структура 1 напоминания для Flatlist
             id: task["id"] || "no id",
             text: task["text"] || "Напоминание",
             date: task["date"] || new Date().toISOString(),
             filename: file.name,
           };
         });
-        const loadedTasks = await Promise.all(tasksPromises);
+        const loadedTasks = (await Promise.all(tasksPromises)).filter(task => task !== undefined); // Фильтруем список файлов, чтобы не было undefined
         setTasks(loadedTasks);
       };
       loadFiles();
     }, []) // Зависимости
   );
 
-  useEffect(() => {
+  useEffect(() => { // Звуки
       const loadSound = async () => {
         const {sound: loadedSound} = await Audio.Sound.createAsync(require("@/assets/sounds/delete.mp3"));
         setDeleteSound(loadedSound);
@@ -54,16 +60,10 @@ export default function tasks_index() {
       }
     }, []);
 
-  const getInfo = async (filename: string) => {
-    const task = await readTask(filename);
-    const date = getDisplayDate(Date.parse(task["date"]))
-    return `Сработает ${date}`;
-  }
-
   return (
     <View style={styles.container}>
       
-    <FlatList 
+    <FlatList // Динамический список напоминаний
       data={tasks}
       keyExtractor={(item) => item.filename} 
       renderItem={({ item }) => (
@@ -72,8 +72,8 @@ export default function tasks_index() {
             <Text style={styles.text}>{stabilizeTitle(item.text, "task") || "Загрузка..."}</Text>
             <Text style={styles.second_line}>Сработает {getDisplayDate(Date.parse(item.date))}</Text>
           </View>
-          <SmallButton name={"trash"} backgroundColor="#e31313" onPress={async () => {
-            Alert.alert("Вы точно хотите удалить напомининание?", 
+          <SmallButton name={"trash"} backgroundColor="#e31313" onPress={async () => { // Удалить файл напоминания
+            Alert.alert("Вы точно хотите удалить напомининание?", // Всплывающее окно с подтверждением 
             "Это действие невозможно отменить. Делайте это только с уже прозвучавшими напоминаниями или с теми, которые хотите отменить навсегда.", 
             [
               {text: "Отмена", style: "cancel"},
@@ -94,8 +94,8 @@ export default function tasks_index() {
                     }
                   }
                 };
-                playDeleteSound();
-                setTasks(prev => prev.filter(t => t.filename !== item.filename));
+                playDeleteSound(); // Проигрываем звук
+                setTasks(prev => prev.filter(t => t.filename !== item.filename)); // Обновляем список
               }
             }]
           )}} />
@@ -110,7 +110,7 @@ export default function tasks_index() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create({ // Таблица стилей
   container: {
     flex: 1,
     justifyContent: "center",

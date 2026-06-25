@@ -111,7 +111,7 @@ export async function deleteFile(filename: string) { // Удаление фай�
     console.log(`FileSystem: file ${filename} was deleted`);
 }
 
-export async function saveDataReminder(data: any, filename: string) {
+export async function saveDataReminder(data: any, filename: string) { // Сохранить файл напоминания
     const jsonData = JSON.stringify(data);
     const folder = new Directory(Paths.document.uri + folder_name + "/data", "tasks");
     const file = new File(folder, filename);
@@ -125,7 +125,7 @@ export async function saveDataReminder(data: any, filename: string) {
     console.log(`fileSystem: Task created: ${folder.list()}`)
 }
 
-export async function getTaskText(filename: string) {
+export async function getTaskText(filename: string) { // Получение текста напоминания
     const folder = new Directory(Paths.document.uri + folder_name + "/data", "tasks");
     const file = new File(folder, filename);
     const content = await file.text();
@@ -133,7 +133,7 @@ export async function getTaskText(filename: string) {
     return massive["text"];
 }
 
-export async function readTask(filename: string) {
+export async function readTask(filename: string) { // Чтение и получение информации о напоминании
     const folder = new Directory(Paths.document.uri + folder_name + "/data", "tasks");
     const file = new File(folder, filename);
     const content = await file.text();

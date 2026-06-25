@@ -18,7 +18,7 @@ export default function editNote() { // Основное наполнение с
   // ".txt" - для старых версий приложения до версии 2.х.х
   // "json" - новый формат заметок после версии 2.х.х
 
-  const nav = useNavigation();
+  const nav = useNavigation(); // навигация по страницам
 
   useFocusEffect( // Перерендеринг страницы в случае открытия редактора для другой заметки
     useCallback(() => {
