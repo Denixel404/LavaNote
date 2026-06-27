@@ -48,4 +48,6 @@ app-example
 # keystore
 my-release-key.keystore
 credentials.json
+certificate.pem
+encryptedPrivateKey
 /keys
