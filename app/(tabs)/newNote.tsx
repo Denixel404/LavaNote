@@ -62,14 +62,14 @@ export default function newNote() { // Основное наполнение с�
       }
     }, []);
 
-  let create = async () => { // Создание файла заметки
+  const create = async () => { // Создание файла заметки
     if ((noteTitle === "") || (noteText === "")) { // Валидация
       alert("Поля не должны быть пустыми!");
       return;
     };
     
     let content = [noteTitle, noteText]
-    //createFile(`${noteTitle}.json`, content)
+    createFile(`${noteTitle}.json`, content)
     // Функция для проигрывания звука
     const playAddSound = async () => { 
       if (addSound) {
