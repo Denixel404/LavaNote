@@ -1,4 +1,4 @@
-import { Text, View, ScrollView } from "react-native";
+import { Text, View, ScrollView, useWindowDimensions } from "react-native";
 import { StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useState, useEffect, useCallback } from "react";
@@ -6,7 +6,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 
 import { readFile } from "@/src/scripts/fileSystem";
-import { colors } from "@/src/globalVars";
+import { colors, bigDisplay } from "@/src/globalVars";
 
 export default function showNote() { // Основное наполнение страницы
   let title = null;
@@ -20,8 +20,22 @@ export default function showNote() { // Основное наполнение с
 
   const [fontsLoaded] = useFonts({
       "IBMPlexMono-Bold": require("@/assets/fonts/IBMPlexMono-Bold.ttf"),
-      "IBMPlexMono-Medium": require("@/assets/fonts/IBMPlexMono-Medium.ttf"),
     });
+  const { width } = useWindowDimensions();
+  const adaptiveStyle = {
+    text: {
+      color: "#fff",
+      fontSize: width > bigDisplay? 22 : 16,
+      marginTop: 0,
+
+    },
+    title: {
+      textAlign: "center",
+      color: "white",
+      fontSize: width > bigDisplay? 38 : 32,
+      fontFamily: "IBMPlexMono-Bold",
+    },
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -46,8 +60,8 @@ export default function showNote() { // Основное наполнение с
   return (
       <View style={styles.container}>
         <ScrollView style={styles.scroll}>
-          <Text style={styles.title} selectable={true}>{title}</Text>
-          <Text style={styles.text} selectable={true}>{content}</Text>
+          <Text style={styles.title, adaptiveStyle.title} selectable={true}>{title}</Text>
+          <Text style={styles.text, adaptiveStyle.text} selectable={true}>{content}</Text>
         </ScrollView>
       </View>
   );
@@ -57,10 +71,8 @@ const styles = StyleSheet.create({ // Таблица стилей
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    alignItems: "center",
-    justifyContent: "flex-start",
     experimental_backgroundImage: "linear-gradient(#0A0F1A, #341913)",
-    padding: 8,
+    padding: 10,
   },
   title: {
     textAlign: "center",
@@ -70,10 +82,10 @@ const styles = StyleSheet.create({ // Таблица стилей
   },
   text: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: 16,
     marginTop: 0,
     textAlign: "left",
-    fontFamily: "IBMPlexMono-Medium"
+    fontFamily: "IBMPlexMono-Medium",
   },
   scroll: {
   }

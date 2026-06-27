@@ -101,7 +101,7 @@ export async function getFileInfo(filename: string) { // Получение ин
 
     const infoObj = await file.info();
     const info = [infoObj.uri, infoObj.size, infoObj.modificationTime, infoObj.size, infoObj.uri]
-    console.log(`FileSystem: file ${filename} info\n${info[2]}`);
+    //console.log(`FileSystem: file ${filename} info\n${info[2]}`);
 }
 
 export async function deleteFile(filename: string) { // Удаление файла
@@ -122,7 +122,7 @@ export async function saveDataReminder(data: any, filename: string) { // Сох�
         console.warn("[WARN] FileSystem: file already exist")
     }
     await file.write(jsonData);
-    console.log(`fileSystem: Task created: ${folder.list()}`)
+    //console.log(`fileSystem: Task created: ${folder.list()}`)
 }
 
 export async function getTaskText(filename: string) { // Получение текста напоминания

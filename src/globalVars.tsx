@@ -1,5 +1,6 @@
 // Переменные приложения
 export const title_fontSize = 24;
+export const bigDisplay = 600;
 export const colors = {
     "panel": "#0c0a15",
     "background": "#0A0F1A",

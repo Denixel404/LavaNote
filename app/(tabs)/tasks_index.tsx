@@ -1,10 +1,10 @@
-import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
+import { View, Text, StyleSheet, FlatList, Alert, useWindowDimensions } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { useState, useCallback, useEffect } from "react";
 import { Audio } from "expo-av";
 
 import SmallButton from "../components/SmallButton";
-import { colors } from "@/src/globalVars";
+import { colors, bigDisplay } from "@/src/globalVars";
 import Button from "../components/Button";
 import { deleteTask, getTasks, getTaskText, readTask, deleteFolder } from "@/src/scripts/fileSystem";
 import { stabilizeTitle, getDisplayDate } from "@/src/scripts/utils";
@@ -21,6 +21,44 @@ export default function tasks_index() {
   const nav = useNavigation();
   const [deleteSound, setDeleteSound] = useState(null);
   const [tasks, setTasks] = useState<taskData[]>([]);
+  const { width } = useWindowDimensions();
+  const adaptiveStyles = {
+    empty: {
+      color: "white",
+      textAlign: "center",
+      marginTop: "50%",
+      marginRight: "3%",
+      marginLeft: "3%",
+      fontSize: width > bigDisplay? 22 : 18,
+    },
+    notification: {
+      alignItems: "center",
+      backgroundColor: "rgba(255, 255, 255, 0.06)",
+      backdropFilter: "blur(10px)",
+      flex: 2,
+      flexDirection: "row",
+      borderWidth: 2,
+      borderColor: colors.lava,
+      borderRadius: 15,
+      padding: 20,
+      width: width > bigDisplay? 400 : 325,
+      height: width > bigDisplay? 110 : 85,
+      marginBottom: 5,
+      marginTop: 5,
+      gap: width > bigDisplay? 35 : 50,
+    },
+    noteInfo: {
+      // Блок текста с информацией
+    },
+    second_line: {
+      color: colors.secondtext,
+      fontSize: width > bigDisplay? 20 : 13,
+    },
+    text: {
+      color: colors.white,
+      fontSize: width > bigDisplay? 22 : 15,
+    },
+  }
 
   useFocusEffect( // Динамическое обновление списка заметок
     useCallback(() => {
@@ -67,10 +105,10 @@ export default function tasks_index() {
       data={tasks}
       keyExtractor={(item) => item.filename} 
       renderItem={({ item }) => (
-        <View style={styles.notification}>
+        <View style={styles.notification, adaptiveStyles.notification}>
           <View style={styles.noteInfo}>
-            <Text style={styles.text}>{stabilizeTitle(item.text, "task") || "Загрузка..."}</Text>
-            <Text style={styles.second_line}>Сработает {getDisplayDate(Date.parse(item.date))}</Text>
+            <Text style={styles.text, adaptiveStyles.text}>{stabilizeTitle(item.text, "task") || "Загрузка..."}</Text>
+            <Text style={styles.second_line, adaptiveStyles.second_line}>Сработает {getDisplayDate(Date.parse(item.date))}</Text>
           </View>
           <SmallButton name={"trash"} backgroundColor="#e31313" onPress={async () => { // Удалить файл напоминания
             Alert.alert("Вы точно хотите удалить напомининание?", // Всплывающее окно с подтверждением 
@@ -101,7 +139,7 @@ export default function tasks_index() {
           )}} />
         </View>
       )}
-      ListEmptyComponent={<Text style={styles.empty}>Вы ничего не планировали. Создайте новое напоминание!</Text>}
+      ListEmptyComponent={<Text style={styles.empty, adaptiveStyles.empty}>Вы ничего не планировали. Создайте новое напоминание!</Text>}
     />
       <View style={styles.admin}>
         <Button label="Добавить напоминание" backgroundColor={colors.lava} onPress={() => { nav.navigate("newTask") }} />

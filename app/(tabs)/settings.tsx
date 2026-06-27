@@ -1,10 +1,10 @@
-import { Text, View, TouchableOpacity, Linking } from "react-native";
+import { Text, View, TouchableOpacity, Linking, useWindowDimensions } from "react-native";
 import { StyleSheet, Alert } from "react-native";
 import { useFonts } from "expo-font";
 import Constants from 'expo-constants';
 
 import SocialLink from "@/app/components/Links";
-import { colors } from "@/src/globalVars";
+import { colors, bigDisplay } from "@/src/globalVars";
 
 const tgLogo = require("../../assets/images/telegram.png");
 const githubLogo = require("../../assets/images/github.png");
@@ -22,6 +22,18 @@ export default function Settings() { // Основное наполнение с
   const [fontsLoaded] = useFonts({
     "IBMPlexMono-Bold": require("@/assets/fonts/IBMPlexMono-Bold.ttf"),
   });
+  const { width } = useWindowDimensions();
+  const adaptiveStyle = {
+    title: {
+      color: "#fff",
+      fontSize: width > bigDisplay? 46 : 32,
+      fontFamily: "IBMPlexMono-Bold",
+    },
+    text: {
+      color: "#fff",
+      fontSize: width > bigDisplay? 22 : 15,
+  },
+  }
 
   if (!fontsLoaded) {
     return null;
@@ -30,8 +42,8 @@ export default function Settings() { // Основное наполнение с
   return (
     <View style={styles.container}>
       <View style={styles.banner}>
-        <Text style={styles.title}>LavaNote</Text>
-        <Text style={styles.text}>Версия: {Constants.expoConfig?.version}</Text>
+        <Text style={styles.title, adaptiveStyle.title}>LavaNote</Text>
+        <Text style={styles.text, adaptiveStyle.text}>Версия: {Constants.expoConfig?.version}</Text>
       </View>
 
       <SocialLink image={tgLogo} label="Канал в Telegram"  url="https://t.me/under_the_ctrl"/>
@@ -39,7 +51,7 @@ export default function Settings() { // Основное наполнение с
       <SocialLink image={miniIcon} label="Спасибо, Flaticon!"  url="https://www.flaticon.com/free-icons/lava"/>
   
       <TouchableOpacity style={styles.feedback} onPress={feedback}>
-        <Text style={styles.text}>✏️ Нашли баг или есть идея?</Text>
+        <Text style={styles.text, adaptiveStyle.text}>✏️ Нашли баг или есть идея?</Text>
       </TouchableOpacity>
     </View>
   );

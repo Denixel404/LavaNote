@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useWindowDimensions } from "react-native";
 
 import { colors } from "@/src/globalVars";
 
@@ -7,6 +8,12 @@ let panelcolor = colors.panel;
 let orangecolor = colors.lava;
 
 export default function TabLayout() {
+    const { width } = useWindowDimensions();
+    const adaptiveStyle = {
+        tab: {
+
+        }
+    }
     return (
         <Tabs screenOptions={{ 
             tabBarActiveTintColor: orangecolor, 
@@ -18,6 +25,10 @@ export default function TabLayout() {
             tabBarStyle: {
                 backgroundColor: panelcolor,
                 experimental_backgroundImage: "linear-gradient(#1c1b20, #0c0a15)",
+                height: width > 600? 150 : 100,
+            },
+            tabBarLabelStyle: {
+                fontSize: width > 600? 18 : 10,
             }
         }}>
             <Tabs.Screen 
@@ -25,7 +36,7 @@ export default function TabLayout() {
                 options={{ 
                     title: "Заметки", 
                     tabBarIcon: ({ color, focused }) => (<Ionicons name={focused? "home-sharp": "home-outline"} color={color} size={24} />) 
-                    }} />
+                }}/>
             <Tabs.Screen
                 name="tasks_index"
                 options={{

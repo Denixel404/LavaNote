@@ -1,4 +1,4 @@
-import { Text, View, TextInput } from "react-native";
+import { Text, View, TextInput, useWindowDimensions } from "react-native";
 import { StyleSheet } from "react-native";
 import { useState, useCallback } from "react";
 import { useLocalSearchParams } from "expo-router";
@@ -6,7 +6,7 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
 import Button from "../components/Button";
 import { writeFile, readFile, renameFile } from "@/src/scripts/fileSystem";
-import { colors } from "@/src/globalVars";
+import { colors, bigDisplay } from "@/src/globalVars";
 
 export default function editNote() { // Основное наполнение страницы
   const [noteTitle, setNoteTitle] = useState("");
@@ -17,6 +17,44 @@ export default function editNote() { // Основное наполнение с
   const expansion = filename.slice(-4); // Расширение файла
   // ".txt" - для старых версий приложения до версии 2.х.х
   // "json" - новый формат заметок после версии 2.х.х
+  const { width } = useWindowDimensions();
+  const adaptiveStyle = {
+    title: {
+    color: "white",
+    fontSize: 24,
+    },
+    text: {
+      color: "#fff",
+      fontSize: width > bigDisplay? 26 : 18,
+      marginTop: 30,
+      textAlign: "center"
+    },
+    input_text: {
+      height: width > bigDisplay? 400 : 200,
+      width: width > bigDisplay? 500 : 300,
+      borderColor: colors.lava,
+      borderWidth: 1,
+      paddingHorizontal: 10,
+      marginBottom: width > bigDisplay? 80 : 20,
+      marginTop: 20,
+      borderRadius: 5,
+      color: "white",
+      textAlignVertical: "top",
+      fontSize: width > bigDisplay? 22 : 15
+    },
+    input_title: {
+      height: width > bigDisplay? 50 : 40,
+      width: width > bigDisplay? 500 : 300,
+      borderColor: "#e05807",
+      borderWidth: 1,
+      paddingHorizontal: 10,
+      marginBottom: 20,
+      marginTop: 20,
+      borderRadius: 5,
+      color: "white",
+      fontSize: width > bigDisplay? 22 : 15,
+    }
+  };
 
   const nav = useNavigation(); // навигация по страницам
 
@@ -63,17 +101,17 @@ export default function editNote() { // Основное наполнение с
 
   return (
       <View style={styles.container}>
-        <Text style={styles.text}>Смените заголовок</Text>
+        <Text style={styles.text, adaptiveStyle.text}>Смените заголовок</Text>
         <TextInput 
-          style={styles.input_title}
+          style={styles.input_title, adaptiveStyle.input_title}
           placeholder="Место для заголовка"
           placeholderTextColor="white"
           value={noteTitle}
           onChangeText={text => setNoteTitle(text)}
         />
-        <Text style={styles.text}>Измените старый текст</Text>
+        <Text style={styles.text, adaptiveStyle.text}>Измените старый текст</Text>
         <TextInput 
-          style={styles.input_text}
+          style={styles.input_text, adaptiveStyle.input_text}
           multiline={true}
           scrollEnabled={true}
           placeholder="Текст заметки"
@@ -126,5 +164,5 @@ const styles = StyleSheet.create({ // Таблица стилей
     marginTop: 20,
     borderRadius: 5,
     color: "white"
-  }
+  },
 })

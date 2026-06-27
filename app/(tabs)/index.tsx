@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unresolved */
-import { FlatList, Text, View, TouchableOpacity, Animated } from "react-native";
+import { FlatList, Text, View, TouchableOpacity, Animated, useWindowDimensions } from "react-native";
 import { StyleSheet, Alert } from "react-native";
 import React, { useEffect, useRef } from "react";
 import { useState, useCallback } from "react";
@@ -11,7 +11,7 @@ import Button from "../components/Button";
 import SmallButton from "../components/SmallButton";
 import { getData, deleteFile, fileSystemInit } from "@/src/scripts/fileSystem";
 import { getDisplayDate, stabilizeTitle } from "@/src/scripts/utils";
-import { colors } from "@/src/globalVars";
+import { colors, bigDisplay } from "@/src/globalVars";
 
 const sec = 1000;
 
@@ -26,6 +26,46 @@ export default function Index() {
   //const [isVisible, setVisible] = useState(false);
   const spawnAnimation = useRef(new Animated.Value(-30)).current;
   const opacityAnimation = useRef(new Animated.Value(0)).current;
+
+  const { width } = useWindowDimensions();
+  const adaptiveStyle = {
+    note: {
+      backgroundColor: "rgba(255, 255, 255, 0.06)",
+      backdropFilter: "blur(10px)",
+      flex: 2,
+      flexDirection: "row",
+      borderWidth: 2,
+      borderColor: colors.lava,
+      borderRadius: 15,
+      padding: 20,
+      width: width > bigDisplay? 440 : 325,
+      marginBottom: 5,
+      marginTop: 5,
+      gap: 47,
+    },
+    note_text: {
+      color: "white",
+      width: "100%",
+      fontSize: width > bigDisplay? 22 : 15,
+    }, 
+    note_text_info: {
+      color: colors.secondtext,
+      width: "100%",
+      fontSize: width > bigDisplay? 22 : 15,
+    },
+    notes_btns: {
+      flexDirection: "row",
+      width: "50%",
+      gap: width > bigDisplay? 40 : 5,
+      marginTop: width > bigDisplay? 10 : 0,
+    },
+    empty: {
+      color: "white",
+      fontSize: width > bigDisplay? 24 : 20,
+      textAlign: "center",
+      marginTop: 100,
+    },
+  }
 
   const showNote = (note: string) => { // Действия кнопки показа заметки
     nav.navigate("showNote", {filename: note}); // Переадресация с передачей аргумента
@@ -107,14 +147,14 @@ export default function Index() {
         keyExtractor={(item) => item.uri} 
         renderItem={({ item }) => (
           <Animated.View style={{ transform: [{translateX: spawnAnimation}], opacity: opacityAnimation }}>
-            <TouchableOpacity style={styles.notes} onPress={() => showNote(item.name)}>
+            <TouchableOpacity style={styles.notes, adaptiveStyle.note} onPress={() => showNote(item.name)}>
               <View style={styles.note}>
-                <Text style={styles.note_text}>{stabilizeTitle(item.name)}</Text>
-                <Text style={styles.note_text_info}>
+                <Text style={styles.note_text, adaptiveStyle.note_text}>{stabilizeTitle(item.name)}</Text>
+                <Text style={styles.note_text_info, adaptiveStyle.note_text_info}>
                   {getDisplayDate(item.creationTime)}
                 </Text>
               </View>
-              <View style={styles.notes_btns}>
+              <View style={styles.notes_btns, adaptiveStyle.notes_btns}>
 
                 <SmallButton name={"edit"} backgroundColor="#f1951d" onPress={() => editNote(item.name)}/>
                 <SmallButton name={"trash"} backgroundColor="#e31313" onPress={async () => {
@@ -149,7 +189,7 @@ export default function Index() {
             </TouchableOpacity>
           </Animated.View>
         )}
-        ListEmptyComponent={<Text style={styles.empty}>Здесь пока пусто. Начните работать!</Text>}
+        ListEmptyComponent={<Text style={styles.empty, adaptiveStyle.empty}>Здесь пока пусто. Начните работать!</Text>}
       />
       <View style={styles.footerContainer}>
         <Button label="Добавить заметку" backgroundColor={colors.lava} onPress={() => { nav.navigate("newNote") }} />
@@ -165,7 +205,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     alignItems: "center",
     justifyContent: "center",
-    experimental_backgroundImage: "linear-gradient(#0A0F1A, #341913)"
+    experimental_backgroundImage: "linear-gradient(#0A0F1A, #341913)",
   },
   notes: {
     backgroundColor: "rgba(255, 255, 255, 0.06)",

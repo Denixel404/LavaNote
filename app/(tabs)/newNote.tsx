@@ -1,16 +1,55 @@
-import { Text, View, TextInput } from "react-native";
+import { Text, View, TextInput, useWindowDimensions } from "react-native";
 import { StyleSheet } from "react-native";
 import { useState, useEffect } from "react";
 import { Audio } from "expo-av";
 
 import Button from "../components/Button";
 import { createFile } from "@/src/scripts/fileSystem";
-import { colors } from "@/src/globalVars"; 
+import { colors, bigDisplay } from "@/src/globalVars"; 
 
 export default function newNote() { // Основное наполнение страницы
   const [noteTitle, setNoteTitle] = useState("");
   const [noteText, setNoteText] = useState("");
   const [addSound, setAddSound] = useState(null);
+
+  const { width } = useWindowDimensions();
+  const adaptiveStyle = {
+    input_text: {
+      height: width > bigDisplay? 400 : 200,
+      width: width > bigDisplay? 500 : 300,
+      borderColor: colors.lava,
+      borderWidth: 1,
+      paddingHorizontal: 10,
+      marginBottom: width > bigDisplay? 60 : 20,
+      marginTop: 20,
+      borderRadius: 5,
+      color: "white",
+      textAlignVertical: "top",
+      fontSize: width > bigDisplay? 22 : 15,
+    },
+    input_title: {
+      height: width > bigDisplay? 60 : 40,
+      width: width > bigDisplay? 500 : 300,
+      borderColor: colors.lava,
+      borderWidth: 1,
+      paddingHorizontal: 10,
+      marginBottom: 20,
+      marginTop: 20,
+      borderRadius: 5,
+      color: "white",
+      fontSize: width > bigDisplay? 22 : 15,
+    },
+    text: {
+      color: "#fff",
+      fontSize: 18,
+      marginTop: 30,
+      textAlign: "center"
+    },
+    title: {
+      color: "white",
+      fontSize: width > bigDisplay? 26 : 24,
+    },
+  }
 
   useEffect(() => { // Загрузка звуков
       const loadSound = async () => {
@@ -30,7 +69,7 @@ export default function newNote() { // Основное наполнение с�
     };
     
     let content = [noteTitle, noteText]
-    createFile(`${noteTitle}.json`, content)
+    //createFile(`${noteTitle}.json`, content)
     // Функция для проигрывания звука
     const playAddSound = async () => { 
       if (addSound) {
@@ -40,7 +79,7 @@ export default function newNote() { // Основное наполнение с�
           // Запускаем воспроизведение
           await addSound.playAsync();
         } catch (error) {
-          console.error('Ошибка при воспроизведении:', error);
+          console.error('Sound error:', error);
         }
       }
     };
@@ -52,16 +91,16 @@ export default function newNote() { // Основное наполнение с�
 
   return ( // Страница
       <View style={styles.container}>
-        <Text style={styles.title}>Создайте новую заметку</Text>
+        <Text style={styles.title, adaptiveStyle.title}>Создайте новую заметку</Text>
         <TextInput 
-          style={styles.input_title}
+          style={styles.input_title, adaptiveStyle.input_title}
           placeholder="Введите здесь имя заметки"
           placeholderTextColor={colors.secondtext}
           value={noteTitle}
           onChangeText={text => setNoteTitle(text)}
         />
         <TextInput 
-          style={styles.input_text}
+          style={styles.input_text, adaptiveStyle.input_text}
           multiline={true}
           scrollEnabled={true}
           placeholder="А здесь напишите её текст"
