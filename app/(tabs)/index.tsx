@@ -135,6 +135,7 @@ export default function Index() {
       const loadFiles = async () => {
         const loadedFiles = await getData();
         setFiles(loadedFiles);
+        setFilteredFiles(loadedFiles)
       };
       loadFiles();
     }, []) // Зависимости
@@ -182,10 +183,10 @@ export default function Index() {
           value={searchValue}
           onChangeText={text => updateList(text)}
         />
-        <SmallButton name="search" backgroundColor="#f1951d" borderRadius={17} onPress={() => search()}/>
+        <SmallButton name="search" backgroundColor="#f1951d" borderRadius={17} onPress={() => search(searchValue)}/>
       </View>
       <FlatList
-        data={files}
+        data={filteredFiles}
         keyExtractor={(item) => item.uri} 
         renderItem={({ item }) => (
           <Animated.View style={{ transform: [{translateX: spawnAnimation}], opacity: opacityAnimation }}>
