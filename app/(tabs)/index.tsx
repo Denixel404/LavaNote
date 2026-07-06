@@ -9,7 +9,7 @@ import * as notifications from "expo-notifications";
 
 import Button from "../components/Button";
 import SmallButton from "../components/SmallButton";
-import { getData, deleteFile, fileSystemInit } from "@/src/scripts/fileSystem";
+import { getData, deleteFile, fileSystemInit, readFile } from "@/src/scripts/fileSystem";
 import { getDisplayDate, stabilizeTitle } from "@/src/scripts/utils";
 import { colors, bigDisplay } from "@/src/globalVars";
 
@@ -39,8 +39,8 @@ export default function Index() {
       borderWidth: 2,
       borderColor: colors.lava,
       borderRadius: 15,
-      padding: 20,
-      width: width > bigDisplay? 440 : 325,
+      padding: 15,
+      width: width > bigDisplay? 440 : 330,
       marginBottom: 5,
       marginTop: 5,
       gap: 47,
@@ -103,7 +103,7 @@ export default function Index() {
       return
     }
     const trueRequest = request.toLowerCase().trim();
-    const filter = files.filter((note) => note.name.includes(trueRequest));
+    const filter = files.filter((note) => note.name.toLowerCase().includes(trueRequest));
     setFilteredFiles(filter);
     console.log("filtered!")
   }
@@ -134,8 +134,16 @@ export default function Index() {
     useCallback(() => {
       const loadFiles = async () => {
         const loadedFiles = await getData();
-        setFiles(loadedFiles);
-        setFilteredFiles(loadedFiles)
+        const filesContent = await Promise.all(
+          loadedFiles.map(async (file) => {
+            const noteContent = await readFile(file.name);
+            const content = JSON.parse(noteContent);
+            file.content = content;
+            return file;
+          })
+        );
+        setFiles(filesContent);
+        setFilteredFiles(filesContent);
       };
       loadFiles();
     }, []) // Зависимости
@@ -196,6 +204,7 @@ export default function Index() {
                 <Text style={styles.note_text_info, adaptiveStyle.note_text_info}>
                   {getDisplayDate(item.creationTime)}
                 </Text>
+                <Text style={adaptiveStyle.note_text_info}>{item.content.category}</Text>
               </View>
               <View style={styles.notes_btns, adaptiveStyle.notes_btns}>
 
@@ -232,7 +241,7 @@ export default function Index() {
             </TouchableOpacity>
           </Animated.View>
         )}
-        ListEmptyComponent={<Text style={styles.empty, adaptiveStyle.empty}>Здесь пока пусто. Начните работать!</Text>}
+        ListEmptyComponent={<Text style={styles.empty, adaptiveStyle.empty}>Здесь пока пусто. Попробуйте создать новую заметку</Text>}
       />
       <View style={styles.footerContainer}>
         <Button label="Добавить заметку" backgroundColor={colors.lava} onPress={() => { nav.navigate("newNote") }} />
