@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unresolved */
-import { FlatList, Text, View, TouchableOpacity, Animated, useWindowDimensions } from "react-native";
+import { FlatList, Text, View, TouchableOpacity, Animated, useWindowDimensions, TextInput } from "react-native";
 import { StyleSheet, Alert } from "react-native";
 import React, { useEffect, useRef } from "react";
 import { useState, useCallback } from "react";
@@ -22,10 +22,12 @@ export default function Index() {
   const nav = useNavigation();
   const [deleteSound, setDeleteSound] = useState(null);
   const [files, setFiles] = useState<File[]>([]);
+  const [filteredFiles, setFilteredFiles] = useState<File[]>([]);
   const [accept_fileInit, setAccept_fileInit] = useState(true);
   //const [isVisible, setVisible] = useState(false);
   const spawnAnimation = useRef(new Animated.Value(-30)).current;
   const opacityAnimation = useRef(new Animated.Value(0)).current;
+  const [searchValue, setSearchValue] = useState("");
 
   const { width } = useWindowDimensions();
   const adaptiveStyle = {
@@ -65,6 +67,19 @@ export default function Index() {
       textAlign: "center",
       marginTop: 100,
     },
+    search: {
+      flexDirection: "row",
+      gap: 20,
+    },
+    search_input: {
+      borderWidth: 2,
+      borderColor: "#f1951d",
+      borderRadius: 50,
+      width: 250,
+      marginBottom: 15,
+      textAlign: "center",
+      color: colors.white,
+    },
   }
 
   const showNote = (note: string) => { // Действия кнопки показа заметки
@@ -73,6 +88,24 @@ export default function Index() {
 
   const editNote = (file: string) => { // Действия кнопки редактирования заметки
     nav.navigate("editNote", {filename: file}); // Переадресация с передачей аргумента
+  }
+
+  const updateList = (request: string) => {
+    setSearchValue(request);
+    search(request);
+  }
+
+  const search = (request: string) => {
+    console.log("search note...");
+    if (!request.trim()) {
+      setFilteredFiles(files);
+      console.warn("request is empty")
+      return
+    }
+    const trueRequest = request.toLowerCase().trim();
+    const filter = files.filter((note) => note.name.includes(trueRequest));
+    setFilteredFiles(filter);
+    console.log("filtered!")
   }
 
   useEffect(() => { // Создание необходимых папок приложения и каналов
@@ -141,7 +174,16 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-
+      <View style={adaptiveStyle.search}>
+        <TextInput
+          style={adaptiveStyle.search_input}
+          placeholder="Найти заметку..."
+          placeholderTextColor={colors.secondtext}
+          value={searchValue}
+          onChangeText={text => updateList(text)}
+        />
+        <SmallButton name="search" backgroundColor="#f1951d" borderRadius={17} onPress={() => search()}/>
+      </View>
       <FlatList
         data={files}
         keyExtractor={(item) => item.uri} 
@@ -156,8 +198,8 @@ export default function Index() {
               </View>
               <View style={styles.notes_btns, adaptiveStyle.notes_btns}>
 
-                <SmallButton name={"edit"} backgroundColor="#f1951d" onPress={() => editNote(item.name)}/>
-                <SmallButton name={"trash"} backgroundColor="#e31313" onPress={async () => {
+                <SmallButton name={"edit"} backgroundColor="#f1951d" borderRadius={10} onPress={() => editNote(item.name)}/>
+                <SmallButton name={"trash"} backgroundColor="#e31313" borderRadius={10} onPress={async () => {
                   Alert.alert(`Вы действительно хотите удалить ${item.name}?`, 
                   "Это действие невозможно отменить", 
                   [

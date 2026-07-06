@@ -53,8 +53,8 @@ export async function createFile(filename: string, content: string[]) { // Со�
     await file.write(JSON.stringify(noteMassive)); // Запись информации в файл
     const cont = await file.text(); // Получение данных из файла
     const contParse = JSON.parse(cont);
-    console.log(`FileSystem: file saved in ${file.uri}`);
-    console.log(`FileSystem: read file\n${contParse}\n`);
+    //console.log(`FileSystem: file saved in ${file.uri}`);
+    //console.log(`FileSystem: read file\n${contParse}\n`);
     router.navigate("../"); // Переадресация обратно
     //console.log(deleteFolder());
     //console.log(`FileSystem dir: ${getData()}`);
