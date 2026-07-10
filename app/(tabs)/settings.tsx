@@ -103,7 +103,7 @@ export default function Settings() { // Основное наполнение с
         onRequestClose={() => setCatVisible(false)}
       >
         <View style={adaptiveStyle.modalCategories}>
-          <Text style={adaptiveStyle.modalTitle}>Добавьте новую категорию для заметок</Text>
+          <Text style={adaptiveStyle.modalTitle}>Измените список категорий для заметок через запятую</Text>
           <TextInput 
             style={adaptiveStyle.modalInput}
             placeholder="Введите ваши категории через запятую"

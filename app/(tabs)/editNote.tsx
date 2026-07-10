@@ -3,16 +3,20 @@ import { StyleSheet } from "react-native";
 import { useState, useCallback } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { Picker } from "@react-native-picker/picker";
 
 import Button from "../components/Button";
-import { writeFile, readFile, renameFile } from "@/src/scripts/fileSystem";
+import { writeFile, readFile, renameFile, readDataFile, writeDataFile } from "@/src/scripts/fileSystem";
 import { colors, bigDisplay } from "@/src/globalVars";
+import { splitCategories } from "@/src/scripts/utils";
 
 export default function editNote() { // Основное наполнение страницы
   const [noteTitle, setNoteTitle] = useState("");
   const [noteText, setNoteText] = useState("");
   const [old_title, setOldTitle] = useState(noteText);
   const [note, setNote] = useState<Record<string, string>>({});
+  const [selectedCategory, setSelectedCategory] = useState("Не выбрано");
+  const [allCategories, setAllCategories] = useState([]);
   const { filename } = useLocalSearchParams();
   const expansion = filename.slice(-4); // Расширение файла
   // ".txt" - для старых версий приложения до версии 2.х.х
@@ -26,7 +30,7 @@ export default function editNote() { // Основное наполнение с
     text: {
       color: "#fff",
       fontSize: width > bigDisplay? 26 : 18,
-      marginTop: 30,
+      marginTop: 10,
       textAlign: "center"
     },
     input_text: {
@@ -53,7 +57,23 @@ export default function editNote() { // Основное наполнение с
       borderRadius: 5,
       color: "white",
       fontSize: width > bigDisplay? 22 : 15,
-    }
+    },
+    fall_list: {
+      color: colors.white,
+      height: 75,
+      width: "90%",
+    },
+    category: {
+      borderWidth: 2,
+      borderColor: colors.lava,
+      width: "87%",
+      height: 50,
+      borderRadius: 50,
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: 10,
+      marginBottom: 30,
+    },
   };
 
   const nav = useNavigation(); // навигация по страницам
@@ -75,7 +95,11 @@ export default function editNote() { // Основное наполнение с
         } else if (expansion === "json") { // Получение данных согласно новому формату заметок
           setNoteTitle(norm_content["title"]);
           setNoteText(norm_content["text"]);
+          setSelectedCategory(norm_content["category"]);
         }
+
+        const loadedCategories = await readDataFile("categories.txt");
+        setAllCategories(splitCategories(loadedCategories));
       }; 
       load()}, 
     [filename]) // Зависимость от изменяемой переменной
@@ -87,11 +111,11 @@ export default function editNote() { // Основное наполнение с
       return;
     }
     if (expansion === ".txt") { // Перевод в новый формат данных для работы с json 
-      let content = {"title": noteTitle, "text": noteText, "category": []}
+      let content = {"title": noteTitle, "text": noteText, "category": [selectedCategory]}
       await writeFile(filename, JSON.stringify(content)); // Перезапись файла
       await renameFile(filename, `${noteTitle}.json`); // Смена расширения на удобное
     } else if (expansion === "json") {
-      const updatedNote = {...note, "title": noteTitle, "text": noteText}; // Обновлённый массив
+      const updatedNote = {...note, "title": noteTitle, "text": noteText, "category": [selectedCategory]}; // Обновлённый массив
       //console.log(`after ${note}`);
       await writeFile(filename, JSON.stringify(updatedNote)); // Сохранение изменений в json
       if (old_title != noteTitle) {await renameFile(filename, `${noteTitle}.json`)};
@@ -119,6 +143,21 @@ export default function editNote() { // Основное наполнение с
           value={noteText}
           onChangeText={text => setNoteText(text)}
         />
+        <Text style={adaptiveStyle.text}>Смените категорию</Text>
+        <View style={adaptiveStyle.category}>
+          <Picker
+            selectedValue={selectedCategory}
+            onValueChange={(selection) => setSelectedCategory(selection)}
+            style={adaptiveStyle.fall_list}
+          >
+            <Picker.Item label="--- Не выбрано ---" value="--- Не выбрано ---" />
+            {
+              allCategories.map((category) => (
+                <Picker.Item key={category} label={category} value={category} />
+              ))
+            }
+          </Picker>
+        </View>
         <Button label="Сохранить" backgroundColor={colors.lava} onPress={edit}/>
       </View>
   );

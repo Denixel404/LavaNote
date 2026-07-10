@@ -1,16 +1,17 @@
 /* eslint-disable import/no-unresolved */
-import { FlatList, Text, View, TouchableOpacity, Animated, useWindowDimensions, TextInput } from "react-native";
+import { FlatList, Text, View, TouchableOpacity, Animated, useWindowDimensions, TextInput, Modal } from "react-native";
 import { StyleSheet, Alert } from "react-native";
 import React, { useEffect, useRef } from "react";
 import { useState, useCallback } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Audio } from "expo-av";
+import { Picker } from "@react-native-picker/picker";
 import * as notifications from "expo-notifications";
 
 import Button from "../components/Button";
 import SmallButton from "../components/SmallButton";
-import { getData, deleteFile, fileSystemInit, readFile } from "@/src/scripts/fileSystem";
-import { getDisplayDate, stabilizeTitle } from "@/src/scripts/utils";
+import { getData, deleteFile, fileSystemInit, readFile, readDataFile } from "@/src/scripts/fileSystem";
+import { getDisplayDate, stabilizeTitle, splitCategories } from "@/src/scripts/utils";
 import { colors, bigDisplay } from "@/src/globalVars";
 
 const sec = 1000;
@@ -28,6 +29,9 @@ export default function Index() {
   const spawnAnimation = useRef(new Animated.Value(-30)).current;
   const opacityAnimation = useRef(new Animated.Value(0)).current;
   const [searchValue, setSearchValue] = useState("");
+  const [filtersVisible, setFiltersVisible] = useState(false);
+  const [allCategories, setAllCategories] = useState([]);
+  const [filterCategory, setFilterCategory] = useState("Не выбрано");
 
   const { width } = useWindowDimensions();
   const adaptiveStyle = {
@@ -55,6 +59,11 @@ export default function Index() {
       width: "100%",
       fontSize: width > bigDisplay? 22 : 15,
     },
+    note_category: {
+      color: colors.lava,
+      width: "100%",
+      fontSize: width > bigDisplay? 22 : 15,
+    },
     notes_btns: {
       flexDirection: "row",
       width: "50%",
@@ -69,16 +78,53 @@ export default function Index() {
     },
     search: {
       flexDirection: "row",
-      gap: 20,
+      gap: 7,
     },
     search_input: {
       borderWidth: 2,
       borderColor: "#f1951d",
       borderRadius: 50,
-      width: 250,
+      width: 215,
       marginBottom: 15,
       textAlign: "center",
       color: colors.white,
+    },
+    modalFilters: {
+      backgroundColor: colors.panel,
+      width: "100%",
+      height: "100%",
+      alignItems: "center",
+    },
+    modalText: {
+      color: "#fff",
+      fontSize: width > bigDisplay? 22 : 15,
+    },
+    modalTitle: {
+      color: "#fff",
+      fontSize: width > bigDisplay? 22 : 18,
+      marginTop: 75,
+      textAlign: "center",
+    },
+    btn_filters: {
+      flexDirection: "column",
+      marginTop: 50,
+      gap: 10,
+    },
+    fall_list: {
+      color: colors.white,
+      height: 75,
+      width: "90%",
+    },
+    category: {
+      borderWidth: 2,
+      borderColor: colors.lava,
+      width: "87%",
+      height: 50,
+      borderRadius: 50,
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: 10,
+      marginBottom: 30,
     },
   }
 
@@ -107,6 +153,10 @@ export default function Index() {
     setFilteredFiles(filter);
     console.log("filtered!")
   }
+
+  const filterMode = () => {
+    setFiltersVisible(false);
+  };
 
   useEffect(() => { // Создание необходимых папок приложения и каналов
     if (accept_fileInit) fileSystemInit();
@@ -144,6 +194,9 @@ export default function Index() {
         );
         setFiles(filesContent);
         setFilteredFiles(filesContent);
+
+        const loadedCategories = await readDataFile("categories.txt");
+        setAllCategories(splitCategories(loadedCategories));
       };
       loadFiles();
     }, []) // Зависимости
@@ -183,6 +236,36 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={filtersVisible}
+        onRequestClose={() => setFiltersVisible(false)}
+      >
+        <View style={adaptiveStyle.modalFilters}>
+          <Text style={adaptiveStyle.modalTitle}>Настройте фильтр по категории для поиска заметок</Text>
+          <View style={adaptiveStyle.category}>
+            <Picker
+              selectedValue={filterCategory}
+              onValueChange={(selection) => setFilterCategory(selection)}
+              style={adaptiveStyle.fall_list}
+            >
+              <Picker.Item label="--- Не выбрано ---" value="--- Не выбрано ---" />
+              {
+                allCategories.map((category) => (
+                  <Picker.Item key={category} label={category} value={category} />
+                ))
+              }
+            </Picker>
+          </View>
+          <View style={adaptiveStyle.btn_filters}>
+            <Button label="Сохранить" backgroundColor={colors.lava} onPress={() => filterMode()}/>
+            <Button label="Сбросить" backgroundColor="gray" onPress={() => setFilterCategory("Не выбрано")}/>
+          </View>
+        </View>
+      </Modal>
+
       <View style={adaptiveStyle.search}>
         <TextInput
           style={adaptiveStyle.search_input}
@@ -192,6 +275,7 @@ export default function Index() {
           onChangeText={text => updateList(text)}
         />
         <SmallButton name="search" backgroundColor="#f1951d" borderRadius={17} onPress={() => search(searchValue)}/>
+        <SmallButton name="filter" backgroundColor="#f1951d" borderRadius={17} onPress={() => setFiltersVisible(true)}/>
       </View>
       <FlatList
         data={filteredFiles}
@@ -204,7 +288,7 @@ export default function Index() {
                 <Text style={styles.note_text_info, adaptiveStyle.note_text_info}>
                   {getDisplayDate(item.creationTime)}
                 </Text>
-                <Text style={adaptiveStyle.note_text_info}>{item.content.category}</Text>
+                <Text style={adaptiveStyle.note_category}>{item.content.category}</Text>
               </View>
               <View style={styles.notes_btns, adaptiveStyle.notes_btns}>
 
