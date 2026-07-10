@@ -1,16 +1,21 @@
 import { Text, View, TextInput, useWindowDimensions } from "react-native";
 import { StyleSheet } from "react-native";
-import { useState, useEffect } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useState, useEffect, useCallback } from "react";
 import { Audio } from "expo-av";
+import { Picker } from "@react-native-picker/picker";
 
 import Button from "../components/Button";
-import { createFile } from "@/src/scripts/fileSystem";
+import { createFile, readDataFile } from "@/src/scripts/fileSystem";
 import { colors, bigDisplay } from "@/src/globalVars"; 
+import { splitCategories } from "@/src/scripts/utils";
 
 export default function newNote() { // Основное наполнение страницы
   const [noteTitle, setNoteTitle] = useState("");
   const [noteText, setNoteText] = useState("");
   const [addSound, setAddSound] = useState(null);
+  const [allCategories, setAllCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("Не выбрано");
 
   const { width } = useWindowDimensions();
   const adaptiveStyle = {
@@ -20,7 +25,7 @@ export default function newNote() { // Основное наполнение с�
       borderColor: colors.lava,
       borderWidth: 1,
       paddingHorizontal: 10,
-      marginBottom: width > bigDisplay? 60 : 20,
+      marginBottom: width > bigDisplay? 60 : 0,
       marginTop: 20,
       borderRadius: 5,
       color: "white",
@@ -49,6 +54,24 @@ export default function newNote() { // Основное наполнение с�
       color: "white",
       fontSize: width > bigDisplay? 26 : 24,
     },
+    button: {
+      marginTop: 30,
+    },
+    fall_list: {
+      color: colors.white,
+      height: 75,
+      width: "90%",
+    },
+    category: {
+      borderWidth: 2,
+      borderColor: colors.lava,
+      width: "87%",
+      height: 50,
+      borderRadius: 50,
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: 10,
+    }
   }
 
   useEffect(() => { // Загрузка звуков
@@ -61,6 +84,17 @@ export default function newNote() { // Основное наполнение с�
         if (addSound) addSound.unloadAsync();
       }
     }, []);
+
+  useFocusEffect( // Чтение и обновление списка категорий
+    useCallback(() => {
+      const loadCategories = async () => {
+        const loadedCategories = await readDataFile("categories.txt");
+        const massive = splitCategories(loadedCategories);
+        setAllCategories(massive);
+      };
+      loadCategories();
+    }, []) // Зависимости
+  );
 
   const create = async () => { // Создание файла заметки
     if ((noteTitle === "") || (noteText === "")) { // Валидация
@@ -108,7 +142,24 @@ export default function newNote() { // Основное наполнение с�
           value={noteText}
           onChangeText={text => setNoteText(text)}
         />
-        <Button label="Создать!" backgroundColor={colors.lava} onPress={create}/>
+        <Text style={adaptiveStyle.text}>Выберите категорию для заметки</Text>
+        <View style={adaptiveStyle.category}>
+          <Picker
+            selectedValue={selectedCategory}
+            onValueChange={(selection) => setSelectedCategory(selection)}
+            style={adaptiveStyle.fall_list}
+          >
+            <Picker.Item label="--- Не выбрано ---" value="--- Не выбрано ---" />
+            {
+              allCategories.map((category) => (
+                <Picker.Item key={category} label={category} value={category} />
+              ))
+            }
+          </Picker>
+        </View>
+        <View style={adaptiveStyle.button}>
+          <Button label="Создать!" backgroundColor={colors.lava} onPress={create}/>
+        </View>
       </View>
   );
 }
