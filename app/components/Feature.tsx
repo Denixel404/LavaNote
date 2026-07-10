@@ -1,0 +1,66 @@
+import { StyleSheet, View, TouchableOpacity, Text, Animated, useWindowDimensions } from "react-native";
+import { useRef } from "react";
+import { bigDisplay } from "@/src/globalVars";
+
+type Props = {
+    label: string;
+    backgroundColor?: string;
+    onPress: () => void;
+};
+
+// Стандартная кнопка
+export default function Feature ({ label, backgroundColor, onPress }: Props) {
+    const { width } = useWindowDimensions();
+    const scaleAnimation = useRef(new Animated.Value(1)).current;
+    const onPressIn = () => Animated.spring(scaleAnimation, {toValue: 0.85, useNativeDriver: true}).start();
+    const onPressOut = () => Animated.spring(scaleAnimation, {toValue: 1, useNativeDriver: true}).start();
+    
+    const adaptiveStyle = {
+        buttonView: {
+            width: width > bigDisplay? 400 : 260,
+            height: width > bigDisplay? 75 : 50,
+            marginHorizontal: 1,
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 3,
+            marginBottom: width > bigDisplay? 70 : 20,
+        },
+        buttonLabel: {
+            color: "#fff",
+            fontSize: width > bigDisplay? 22 : 16
+        }
+    }
+
+    return (
+        <Animated.View style={[styles.buttonContainer, {transform: [{scale: scaleAnimation}]} ]}>
+            <TouchableOpacity style={[styles.button, {backgroundColor}, adaptiveStyle.buttonView]} onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut}>
+                <Text style={styles.buttonLabel, adaptiveStyle.buttonLabel}>{label}</Text>
+            </TouchableOpacity>
+        </Animated.View>
+    )
+}
+
+const styles = StyleSheet.create({
+    buttonContainer: {
+        width: 225,
+        height: 68,
+        marginHorizontal: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 3
+    },
+    button: {
+        borderRadius: 50,
+        width: "100%",
+        height: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "row",
+        backgroundColor: "#fff"
+    },
+    buttonLabel: {
+        color: "#fff",
+        fontSize: 16
+    },
+});
+

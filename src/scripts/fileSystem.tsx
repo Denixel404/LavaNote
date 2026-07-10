@@ -15,11 +15,20 @@ export async function fileSystemInit() {
     }
 
     const data_folder = new Directory(Paths.document.uri + folder_name, "data");
+    const categories_file = new File(Paths.document.uri + folder_name + "/data", "categories.txt");
     if (!(data_folder.exists)) {
         await data_folder.create({ intermediates: true, idempotent: true });
         console.log("FileSystem: data folder was created");
     } else {
         console.log("FileSystem: data folder already exists");
+    }
+
+    if (!(categories_file.exists)) {
+        await categories_file.create();
+        await categories_file.write("Важное, Моё");
+        console.log("FileSystem: categories file was created");
+    } else {
+        console.log("FileSystem: categories file already exists");
     }
 
     const tasks_folder = new Directory(Paths.document.uri + folder_name + "/" + "data", "tasks");
@@ -66,10 +75,22 @@ export async function readFile(filename: string) { // Получение инф�
     return await file.text();
 }
 
+export async function readDataFile(filename: string) {
+    const folder = new Directory(Paths.document.uri + folder_name, "data");
+    const file = new File(folder, filename);
+    return await file.text();
+}
+
 export async function writeFile(filename: string, content: string) { // Перезапись файла
     const folder = new Directory(Paths.document, folder_name);
     const file = new File(folder, filename);
     await file.write(content);
+}
+
+export async function writeDataFile(filename: string, content: string) {
+    const folder = new Directory(Paths.document.uri + folder_name, "data");
+    const file = new File(folder, filename);
+    await file.write(content)
 }
 
 export async function renameFile(filename: string, newName: string) { // Переименование файла
