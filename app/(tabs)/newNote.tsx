@@ -15,7 +15,7 @@ export default function newNote() { // Основное наполнение с�
   const [noteText, setNoteText] = useState("");
   const [addSound, setAddSound] = useState(null);
   const [allCategories, setAllCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("Не выбрано");
+  const [selectedCategory, setSelectedCategory] = useState("--- Не выбрано ---");
 
   const { width } = useWindowDimensions();
   const adaptiveStyle = {

@@ -1,8 +1,26 @@
 import { File, Directory, Paths } from "expo-file-system";
 import { router } from "expo-router";
+import * as secureStore from "expo-secure-store";
+import * as cc from "expo-crypto";
 
 const folder_name = "LavaNote"; // Имя папки с данными приложения
 const dir = `${Paths.document}${folder_name}`; // Путь к основной папке
+const key_name = "LNSecureKey";
+
+async function keystoreKeyInit() {
+    const keyHEX = await secureStore.getItemAsync(key_name);
+    if (keyHEX) {
+        console.log("Key ready");
+        return await crypto.AES.importKeyAsync(keyHEX, "hex");
+    } else {
+        console.log("key not found. Creating...");
+        const newKey = await AES.generateKeyAsync();
+        const newKeyHEX = await newKey.export("hex");
+        await secureStore.setItemAsync(key_name, newKeyHEX);
+        console.log("key was generated!");
+        return newKey;
+    }
+}
 
 export async function fileSystemInit() {
     console.log("Initialization file structure...");

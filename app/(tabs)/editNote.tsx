@@ -15,7 +15,7 @@ export default function editNote() { // Основное наполнение с
   const [noteText, setNoteText] = useState("");
   const [old_title, setOldTitle] = useState(noteText);
   const [note, setNote] = useState<Record<string, string>>({});
-  const [selectedCategory, setSelectedCategory] = useState("Не выбрано");
+  const [selectedCategory, setSelectedCategory] = useState("--- Не выбрано ---");
   const [allCategories, setAllCategories] = useState([]);
   const { filename } = useLocalSearchParams();
   const expansion = filename.slice(-4); // Расширение файла

@@ -143,19 +143,27 @@ export default function Index() {
 
   const search = (request: string) => {
     console.log("search note...");
-    if (!request.trim()) {
+    console.log(`search of category: ${filterCategory}`)
+    if ((!request.trim()) && (filterCategory == "Не выбрано")) {
       setFilteredFiles(files);
       console.warn("request is empty")
       return
     }
+    let filteredNotes = files;
     const trueRequest = request.toLowerCase().trim();
-    const filter = files.filter((note) => note.name.toLowerCase().includes(trueRequest));
-    setFilteredFiles(filter);
-    console.log("filtered!")
+    filteredNotes = filteredNotes.filter((note) => note.name.toLowerCase().includes(trueRequest));
+
+    if (filterCategory != "Не выбрано") {
+      console.log("filters active");
+      filteredNotes = filteredNotes.filter((note) => note.content.category == filterCategory);
+    }
+    setFilteredFiles(filteredNotes);
+    console.log("filtered!");
   }
 
   const filterMode = () => {
     setFiltersVisible(false);
+    search(searchValue);
   };
 
   useEffect(() => { // Создание необходимых папок приложения и каналов
@@ -261,7 +269,12 @@ export default function Index() {
           </View>
           <View style={adaptiveStyle.btn_filters}>
             <Button label="Сохранить" backgroundColor={colors.lava} onPress={() => filterMode()}/>
-            <Button label="Сбросить" backgroundColor="gray" onPress={() => setFilterCategory("Не выбрано")}/>
+            <Button label="Сбросить" backgroundColor="gray" onPress={() => {
+              setFilterCategory("Не выбрано");
+              setFilteredFiles(files);
+              setFiltersVisible(false);
+            }
+            }/>
           </View>
         </View>
       </Modal>
