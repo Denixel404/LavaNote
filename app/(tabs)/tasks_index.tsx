@@ -63,6 +63,7 @@ export default function tasks_index() {
   useFocusEffect( // Динамическое обновление списка заметок
     useCallback(() => {
       //deleteFolder();
+      console.log("load tasks files...");
       const loadFiles = async () => {
         const loadedFiles = await getTasks();
         const tasksPromises = loadedFiles.map(async (file) => { // Загрузка данных из файлов
@@ -110,7 +111,7 @@ export default function tasks_index() {
             <Text style={styles.text, adaptiveStyles.text}>{stabilizeTitle(item.text, "task") || "Загрузка..."}</Text>
             <Text style={styles.second_line, adaptiveStyles.second_line}>Сработает {getDisplayDate(Date.parse(item.date))}</Text>
           </View>
-          <SmallButton name={"trash"} backgroundColor="#e31313" onPress={async () => { // Удалить файл напоминания
+          <SmallButton name={"trash"} backgroundColor="#e31313" borderRadius={10} onPress={async () => { // Удалить файл напоминания
             Alert.alert("Вы точно хотите удалить напомининание?", // Всплывающее окно с подтверждением 
             "Это действие невозможно отменить. Делайте это только с уже прозвучавшими напоминаниями или с теми, которые хотите отменить навсегда.", 
             [

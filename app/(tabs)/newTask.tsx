@@ -190,7 +190,7 @@ export default function tasks_index() {
         "text": text,
         "date": date,
     };
-    saveDataReminder(triggerData, `LNTask${fileID}`);
+    await saveDataReminder(triggerData, `LNTask${fileID}`);
     } catch (error) {
       console.error(`notification not schedule\nError: ${error}`);
     }

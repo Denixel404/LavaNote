@@ -7,10 +7,12 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Audio } from "expo-av";
 import { Picker } from "@react-native-picker/picker";
 import * as notifications from "expo-notifications";
+import { decryptAES, encryptAES } from "rn-encryption";
+import { isHasPassword } from "@/src/scripts/security";
 
 import Button from "../components/Button";
 import SmallButton from "../components/SmallButton";
-import { getData, deleteFile, fileSystemInit, readFile, readDataFile } from "@/src/scripts/fileSystem";
+import { getData, deleteFile, fileSystemInit, readFile, readDataFile, getKeystoreKey } from "@/src/scripts/fileSystem";
 import { getDisplayDate, stabilizeTitle, splitCategories } from "@/src/scripts/utils";
 import { colors, bigDisplay } from "@/src/globalVars";
 
@@ -32,6 +34,8 @@ export default function Index() {
   const [filtersVisible, setFiltersVisible] = useState(false);
   const [allCategories, setAllCategories] = useState([]);
   const [filterCategory, setFilterCategory] = useState("Не выбрано");
+  const [hasPassword, setHasPassword] = useState(false);
+  const [password, setPassword] = useState("");
 
   const { width } = useWindowDimensions();
   const adaptiveStyle = {
@@ -126,6 +130,27 @@ export default function Index() {
       marginTop: 10,
       marginBottom: 30,
     },
+    modalEnterPassword: {
+      padding: 10,
+      borderLeftColor: "gold",
+      borderWidth: 2,
+      marginBottom: width > bigDisplay? 50 : 10,
+      margin: 20,
+      backgroundColor: "#ecd20825",
+      fontSize: width > bigDisplay? 22 : 15,
+    },
+    modalInputPassword: {
+      color: colors.white,
+      borderWidth: 2,
+      borderColor: colors.lava,
+      borderRadius: 20,
+      height: "6%",
+      width: "90%",
+      textAlignVertical: "top",
+      marginTop: 20,
+      marginBottom: 10,
+      padding: 10,
+    },
   }
 
   const showNote = (note: string) => { // Действия кнопки показа заметки
@@ -166,6 +191,10 @@ export default function Index() {
     search(searchValue);
   };
 
+  const unlockApp = () => {
+    console.log("checking your password...")
+  };
+
   useEffect(() => { // Создание необходимых папок приложения и каналов
     if (accept_fileInit) fileSystemInit();
     setAccept_fileInit(false);
@@ -195,7 +224,13 @@ export default function Index() {
         const filesContent = await Promise.all(
           loadedFiles.map(async (file) => {
             const noteContent = await readFile(file.name);
-            const content = JSON.parse(noteContent);
+            let content = [];
+            try {
+              const key = await getKeystoreKey();
+              content = decryptAES(JSON.parse(noteContent), key);
+            } catch (error) {
+              content = JSON.parse(noteContent);
+            }
             file.content = content;
             return file;
           })
@@ -276,6 +311,26 @@ export default function Index() {
             }
             }/>
           </View>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={hasPassword}
+        onRequestClose={() => setHasVisible(false)}
+      >
+        <View style={adaptiveStyle.modalEnterPassword}>
+          <Text style={adaptiveStyle.modalText}>Перед тем, как начать...</Text>
+          <TextInput 
+              style={adaptiveStyle.modalInputPassword}
+              placeholder="Введите пароль"
+              value={password}
+              onChangeText={setPassword}
+            />
+            <View style={adaptiveStyle.button}>
+              <Button label="Разблокировать" backgroundColor={colors.lava} onPress={() => unlockApp()} />
+            </View>
         </View>
       </Modal>
 

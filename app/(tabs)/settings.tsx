@@ -6,6 +6,7 @@ import { useFonts } from "expo-font";
 import Constants from 'expo-constants';
 
 import { readDataFile, writeDataFile } from "@/src/scripts/fileSystem";
+import { isHasPassword, saveNewPassword } from "@/src/scripts/security";
 import SocialLink from "@/app/components/Links";
 import Feature from "../components/Feature";
 import { colors, bigDisplay } from "@/src/globalVars";
@@ -25,6 +26,10 @@ const feedback = () => {
 
 export default function Settings() { // Основное наполнение страницы
   const [catVisible, setCatVisible] = useState(false);
+  const [passVisible, setPassVisible] = useState(false);
+  const [hasPassword, setHasPassword] = useState();
+  const [password, setPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
   const [categories, setCategories] = useState("");
   const [fontsLoaded] = useFonts({
     "IBMPlexMono-Bold": require("@/assets/fonts/IBMPlexMono-Bold.ttf"),
@@ -66,6 +71,47 @@ export default function Settings() { // Основное наполнение с
       textAlignVertical: "top",
       marginTop: 20,
       marginBottom: 50,
+    },
+    modalPasswordPage: {
+      backgroundColor: colors.panel,
+      width: "100%",
+      height: "100%",
+      alignItems: "center",
+      padding: 10,
+      marginTop: 30,
+    },
+    modalInputPassword: {
+      color: colors.white,
+      borderWidth: 2,
+      borderColor: colors.lava,
+      borderRadius: 20,
+      height: "6%",
+      width: "90%",
+      textAlignVertical: "top",
+      marginTop: 20,
+      marginBottom: 10,
+      padding: 10,
+    },
+    modalTextPasswordPage: {
+      color: colors.white,
+      fontSize: 18,
+      textAlign: "center",
+    },
+    modalTextPasswordPageY: {
+      color: colors.white,
+      fontSize: 18,
+    },
+    modalWarn: {
+      padding: 10,
+      borderLeftColor: "gold",
+      borderWidth: 2,
+      marginBottom: width > bigDisplay? 50 : 10,
+      margin: 20,
+      backgroundColor: "#ecd20825",
+      fontSize: width > bigDisplay? 22 : 15,
+    },
+    button: {
+      marginTop: 30,
     }
   }
 
@@ -73,7 +119,10 @@ export default function Settings() { // Основное наполнение с
       useCallback(() => {
         const loadCategories = async () => {
           const loadedCategories = await readDataFile("categories.txt");
-          setCategories(loadedCategories)
+          setCategories(loadedCategories);
+
+          const checkedPassword = await isHasPassword();
+          setHasPassword(checkedPassword);
         };
         loadCategories();
       }, []) // Зависимости
@@ -92,7 +141,27 @@ export default function Settings() { // Основное наполнение с
     writeDataFile("categories.txt", changes);
     console.log("categories was saved!");
     setCatVisible(false);
-  }
+  };
+
+  const createPassword = async () => {
+    if (password.length < 4) {
+      alert("Пароль должен составлять не менее 4 символов");
+      return;
+    } else if (password.length > 12) {
+      alert("Пароль должен составлять не более 12 символов");
+      return;
+    } else if ((password === "") || (repeatPassword === "")) {
+      alert("Заполните все поля");
+    }
+    if (password !== repeatPassword) {
+      alert("Пароль должен совпадать");
+      setRepeatPassword("");
+      return;
+    }
+    console.log("password validation complete!");
+    await saveNewPassword(password); // 
+    setPassVisible(false);
+  };
 
   return (
     <View style={styles.container}>
@@ -115,12 +184,51 @@ export default function Settings() { // Основное наполнение с
           <Button label="Сохранить изменения" backgroundColor={colors.lava} onPress={async () => saveCat(categories)}/>
         </View>
       </Modal>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={passVisible}
+        onRequestClose={() => setPassVisible(false)}
+      >
+        <View style={adaptiveStyle.modalPasswordPage}>
+          {!hasPassword ? (
+            <>
+              <Text style={adaptiveStyle.modalTextPasswordPage}>Создайте пароль, защитив свои заметки. Он будет использоваться при входе в приложении.</Text>
+              <View style={adaptiveStyle.modalWarn}>
+                <Text style={adaptiveStyle.modalTextPasswordPageY}>Обратите внимание, что если вы забудете пароль, вам придётся переустанавливать приложение с потерей всех его данных</Text>
+              </View>
+              <TextInput 
+                style={adaptiveStyle.modalInputPassword}
+                placeholder="Придумайте новый пароль"
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TextInput 
+                style={adaptiveStyle.modalInputPassword}
+                placeholder="Повторите придуманный пароль"
+                value={repeatPassword}
+                onChangeText={setRepeatPassword}
+              />
+              <View style={adaptiveStyle.button}>
+                <Button label="Применить" backgroundColor={colors.lava} onPress={async () => await createPassword()} />
+              </View>
+            </>
+          ) : (
+            <>
+              <View>
+                <Text style={adaptiveStyle.modalText}>Страница для редактирования пароля</Text>
+              </View>
+            </>
+          )}
+        </View>
+      </Modal>
 
       <View style={styles.banner}>
         <Text style={styles.title, adaptiveStyle.title}>LavaNote</Text>
         <Text style={styles.text, adaptiveStyle.text}>Версия: {Constants.expoConfig?.version}</Text>
       </View>
       <Feature label="Изменить категории" backgroundColor="#482203bd" onPress={async () => openCategories()}/>
+      <Feature label="Настроить пароль" backgroundColor="#482203bd" onPress={() => setPassVisible(true)} />
       <SocialLink image={tgLogo} label="Канал в Telegram"  url="https://t.me/under_the_ctrl"/>
       <SocialLink image={githubLogo} label="Страница на GitHub"  url="https://github.com/Denixel404/LavaNote"/>
       <SocialLink image={miniIcon} label="Спасибо, Flaticon!"  url="https://www.flaticon.com/free-icons/lava"/>
@@ -158,7 +266,7 @@ const styles = StyleSheet.create({ // Таблица стилей
     color: "#fff",
   },
   feedback: {
-    marginTop: 50,
+    marginTop: 30,
     backgroundColor: colors.background2,
     padding: 30,
     borderRadius: 50,
