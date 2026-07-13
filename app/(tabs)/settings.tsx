@@ -6,11 +6,12 @@ import { useFonts } from "expo-font";
 import Constants from 'expo-constants';
 
 import { readDataFile, writeDataFile } from "@/src/scripts/fileSystem";
-import { isHasPassword, saveNewPassword } from "@/src/scripts/security";
+import { isHasPassword, saveNewPassword, verifyPassword, deleteAppPassword } from "@/src/scripts/security";
 import SocialLink from "@/app/components/Links";
 import Feature from "../components/Feature";
 import { colors, bigDisplay } from "@/src/globalVars";
 import Button from "../components/Button";
+import SmallButton from "../components/SmallButton";
 
 const tgLogo = require("../../assets/images/telegram.png");
 const githubLogo = require("../../assets/images/github.png");
@@ -30,6 +31,8 @@ export default function Settings() { // Основное наполнение с
   const [hasPassword, setHasPassword] = useState();
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(true);
+  const [showRepeatPassword, setShowRepeatPassword] = useState(true);
   const [categories, setCategories] = useState("");
   const [fontsLoaded] = useFonts({
     "IBMPlexMono-Bold": require("@/assets/fonts/IBMPlexMono-Bold.ttf"),
@@ -85,8 +88,8 @@ export default function Settings() { // Основное наполнение с
       borderWidth: 2,
       borderColor: colors.lava,
       borderRadius: 20,
-      height: "6%",
-      width: "90%",
+      height: 40,
+      width: "80%",
       textAlignVertical: "top",
       marginTop: 20,
       marginBottom: 10,
@@ -112,7 +115,23 @@ export default function Settings() { // Основное наполнение с
     },
     button: {
       marginTop: 30,
-    }
+    },
+    modalEditPasswordPage: {
+      backgroundColor: colors.panel,
+      width: "100%",
+      height: "100%",
+      alignItems: "center",
+      padding: 10,
+      marginTop: 30,
+    },
+    modalEnterPassword: {
+      height: 75,
+      width: "100%",
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 10,
+    },
   }
 
   useFocusEffect( // Чтение и обновление строки категорий
@@ -163,6 +182,18 @@ export default function Settings() { // Основное наполнение с
     setPassVisible(false);
   };
 
+  const deletePassword = async () => {
+    console.log("delete password...");
+    const checkPass = await verifyPassword(password);
+    if (checkPass) {
+      deleteAppPassword();
+      setPassVisible(false);
+      alert("Текущий пароль был удалён. Вход в приложение теперь свободный. Вы можете поставить новый пароль в любое время")
+    } else {
+      alert("Введите текущий пароль или проверьте его правильность для удаления");
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Modal
@@ -197,26 +228,47 @@ export default function Settings() { // Основное наполнение с
               <View style={adaptiveStyle.modalWarn}>
                 <Text style={adaptiveStyle.modalTextPasswordPageY}>Обратите внимание, что если вы забудете пароль, вам придётся переустанавливать приложение с потерей всех его данных</Text>
               </View>
-              <TextInput 
-                style={adaptiveStyle.modalInputPassword}
-                placeholder="Придумайте новый пароль"
-                value={password}
-                onChangeText={setPassword}
-              />
-              <TextInput 
-                style={adaptiveStyle.modalInputPassword}
-                placeholder="Повторите придуманный пароль"
-                value={repeatPassword}
-                onChangeText={setRepeatPassword}
-              />
+              <View style={adaptiveStyle.modalEnterPassword}>
+                <TextInput 
+                  style={adaptiveStyle.modalInputPassword}
+                  placeholder="Придумайте новый пароль"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={showPassword}
+                />
+                <SmallButton name="eye" backgroundColor="gray" borderRadius={15} onPress={() => setShowPassword(!showPassword)} />
+              </View>
+              <View style={adaptiveStyle.modalEnterPassword}>
+                <TextInput 
+                  style={adaptiveStyle.modalInputPassword}
+                  placeholder="Повторите придуманный пароль"
+                  value={repeatPassword}
+                  onChangeText={setRepeatPassword}
+                  secureTextEntry={showRepeatPassword}
+                />
+                <SmallButton name="eye" backgroundColor="gray" borderRadius={15} onPress={() => setShowRepeatPassword(!showRepeatPassword)} />
+              </View>
               <View style={adaptiveStyle.button}>
                 <Button label="Применить" backgroundColor={colors.lava} onPress={async () => await createPassword()} />
               </View>
             </>
           ) : (
             <>
-              <View>
-                <Text style={adaptiveStyle.modalText}>Страница для редактирования пароля</Text>
+              <View style={adaptiveStyle.modalEditPasswordPage}>
+                <Text style={adaptiveStyle.modalText}>Настройте свой пароль</Text>
+                <View style={adaptiveStyle.modalEnterPassword}>
+                  <TextInput 
+                    style={adaptiveStyle.modalInputPassword}
+                    placeholder="Введите текущий пароль"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={showPassword}
+                  />
+                  <SmallButton name="eye" backgroundColor="gray" borderRadius={15} onPress={() => setShowPassword(!showPassword)} />
+                </View>
+                <View style={adaptiveStyle.button}>
+                  <Button label="Удалить пароль" backgroundColor="red" onPress={() => deletePassword()} />
+                </View>
               </View>
             </>
           )}
@@ -228,7 +280,10 @@ export default function Settings() { // Основное наполнение с
         <Text style={styles.text, adaptiveStyle.text}>Версия: {Constants.expoConfig?.version}</Text>
       </View>
       <Feature label="Изменить категории" backgroundColor="#482203bd" onPress={async () => openCategories()}/>
-      <Feature label="Настроить пароль" backgroundColor="#482203bd" onPress={() => setPassVisible(true)} />
+      <Feature label="Настроить пароль" backgroundColor="#482203bd" onPress={() => {
+        setPassVisible(true);
+        setPassword("");
+      }} />
       <SocialLink image={tgLogo} label="Канал в Telegram"  url="https://t.me/under_the_ctrl"/>
       <SocialLink image={githubLogo} label="Страница на GitHub"  url="https://github.com/Denixel404/LavaNote"/>
       <SocialLink image={miniIcon} label="Спасибо, Flaticon!"  url="https://www.flaticon.com/free-icons/lava"/>

@@ -8,7 +8,7 @@ import { Audio } from "expo-av";
 import { Picker } from "@react-native-picker/picker";
 import * as notifications from "expo-notifications";
 import { decryptAES, encryptAES } from "rn-encryption";
-import { isHasPassword } from "@/src/scripts/security";
+import { isHasPassword, verifyPassword } from "@/src/scripts/security";
 
 import Button from "../components/Button";
 import SmallButton from "../components/SmallButton";
@@ -36,6 +36,8 @@ export default function Index() {
   const [filterCategory, setFilterCategory] = useState("Не выбрано");
   const [hasPassword, setHasPassword] = useState(false);
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(true);
+  const [isLock, setIsLock] = useState(true);
 
   const { width } = useWindowDimensions();
   const adaptiveStyle = {
@@ -131,25 +133,41 @@ export default function Index() {
       marginBottom: 30,
     },
     modalEnterPassword: {
+      backgroundColor: colors.panel,
+      width: "100%",
+      height: "100%",
+      alignItems: "center",
       padding: 10,
-      borderLeftColor: "gold",
-      borderWidth: 2,
-      marginBottom: width > bigDisplay? 50 : 10,
-      margin: 20,
-      backgroundColor: "#ecd20825",
-      fontSize: width > bigDisplay? 22 : 15,
+      alignItems: "center",
+      justifyContent: "center",
     },
     modalInputPassword: {
       color: colors.white,
       borderWidth: 2,
       borderColor: colors.lava,
       borderRadius: 20,
-      height: "6%",
-      width: "90%",
+      height: "60%",
+      width: "80%",
       textAlignVertical: "top",
       marginTop: 20,
       marginBottom: 10,
       padding: 10,
+    },
+    button: {
+      marginTop: 30,
+    },
+    modalWelcome: {
+      color: "#fff",
+      fontSize: width > bigDisplay? 26 : 22,
+      textAlign: "center",
+    },
+    modalEnterPasswordStroke: {
+      height: 75,
+      width: "100%",
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 10,
     },
   }
 
@@ -191,19 +209,40 @@ export default function Index() {
     search(searchValue);
   };
 
-  const unlockApp = () => {
-    console.log("checking your password...")
+  const unlockApp = async () => {
+    console.log("checking your password...");
+    const check = await verifyPassword(password);
+
+    if (check) {
+      setIsLock(false);
+    } else {
+      alert("Пароль неверный. Попробуйте ещё раз");
+    }
   };
 
-  useEffect(() => { // Создание необходимых папок приложения и каналов
-    if (accept_fileInit) fileSystemInit();
-    setAccept_fileInit(false);
-    notifications.setNotificationChannelAsync("default", {
-      name: "main channel",
-      importance: notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
-    });
+  useEffect(() => { 
+    const initApp = async () => {
+      // Создание необходимых папок приложения и каналов
+      if (accept_fileInit) fileSystemInit(); 
+      setAccept_fileInit(false);
+      // 
+      notifications.setNotificationChannelAsync("default", {
+        name: "main channel",
+        importance: notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+      // 
+      const checkHasPass = await isHasPassword();
+      setHasPassword(checkHasPass);
+      if (!checkHasPass) {
+        setIsLock(false);
+        console.log("app password not exists. Unlock");
+      } else {
+        console.log("app is lock. Enter the password");
+      }
+    }
+    initApp();
   });
 
   useEffect(() => {
@@ -260,23 +299,6 @@ export default function Index() {
     }).start();
   });
 
-  // const spawnAnimationToggle = () => {
-  //   if (isVisible) {
-  //     Animated.timing(spawnAnimation, {
-  //       toValue: 300,
-  //       duration: 500,
-  //       useNativeDriver: true,
-  //     }).start() 
-  //   } else {
-  //     Animated.timing(spawnAnimation, {
-  //       toValue: 0,
-  //       duration: 500,
-  //       useNativeDriver: true,
-  //     }).start()
-  //   };
-  //   setVisible(!isVisible);
-  // };
-
   return (
     <View style={styles.container}>
 
@@ -317,17 +339,21 @@ export default function Index() {
       <Modal
         animationType="slide"
         transparent={true}
-        visible={hasPassword}
-        onRequestClose={() => setHasVisible(false)}
+        visible={hasPassword && isLock}
+        onRequestClose={() => {}}
       >
         <View style={adaptiveStyle.modalEnterPassword}>
-          <Text style={adaptiveStyle.modalText}>Перед тем, как начать...</Text>
-          <TextInput 
-              style={adaptiveStyle.modalInputPassword}
-              placeholder="Введите пароль"
-              value={password}
-              onChangeText={setPassword}
+          <Text style={adaptiveStyle.modalWelcome}>Перед тем, как начать...</Text>
+          <View style={adaptiveStyle.modalEnterPasswordStroke}>
+            <TextInput 
+                style={adaptiveStyle.modalInputPassword}
+                placeholder="Введите пароль"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={showPassword}
             />
+            <SmallButton name="eye" backgroundColor="gray" borderRadius={15} onPress={() => setShowPassword(!showPassword)} />
+          </View>
             <View style={adaptiveStyle.button}>
               <Button label="Разблокировать" backgroundColor={colors.lava} onPress={() => unlockApp()} />
             </View>

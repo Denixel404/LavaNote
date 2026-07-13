@@ -31,3 +31,26 @@ export async function saveNewPassword(newPassword: string) { //
     await writeDataFile("settings.json", JSON.stringify(appSettings));
     console.warn("app password was been changed");
 }
+
+export async function verifyPassword(password: string) {
+    const passHash = await secureStore.getItemAsync(password_name);
+    const salt = await secureStore.getItemAsync(password_salt_name);
+    if ((!passHash) || (!salt)) {
+        console.error("Password verify error: salt or password's hash not exists");
+        return false;
+    }
+    const getHash = hashPassword(password, salt);
+    if (getHash === passHash) {
+        console.log("verify password! Unlock app...");
+        return true;
+    } else {
+        console.log("Uncorrect password. Try again");
+        return false;
+    }
+}
+
+export async function deleteAppPassword() {
+    await secureStore.deleteItemAsync(password_name);
+    await secureStore.deleteItemAsync(password_salt_name);
+    console.warn("app password with salt was deleted")
+}
