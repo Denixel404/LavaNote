@@ -22,7 +22,7 @@ export default function showNote() { // Основное наполнение с
       "IBMPlexMono-Bold": require("@/assets/fonts/IBMPlexMono-Bold.ttf"),
     });
   const { width } = useWindowDimensions();
-  const adaptiveStyle = {
+  const adaptiveStyle = { // Адаптивные стили для страницы
     text: {
       color: "#fff",
       fontSize: width > bigDisplay? 22 : 16,
@@ -60,8 +60,8 @@ export default function showNote() { // Основное наполнение с
   return (
       <View style={styles.container}>
         <ScrollView style={styles.scroll}>
-          <Text style={styles.title, adaptiveStyle.title} selectable={true}>{title}</Text>
-          <Text style={styles.text, adaptiveStyle.text} selectable={true}>{content}</Text>
+          <Text style={adaptiveStyle.title} selectable={true}>{title}</Text>
+          <Text style={adaptiveStyle.text} selectable={true}>{content}</Text>
         </ScrollView>
       </View>
   );
@@ -73,19 +73,6 @@ const styles = StyleSheet.create({ // Таблица стилей
     backgroundColor: colors.background,
     experimental_backgroundImage: "linear-gradient(#0A0F1A, #341913)",
     padding: 10,
-  },
-  title: {
-    textAlign: "center",
-    color: "white",
-    fontSize: 32,
-    fontFamily: "IBMPlexMono-Bold",
-  },
-  text: {
-    color: "#fff",
-    fontSize: 16,
-    marginTop: 0,
-    textAlign: "left",
-    fontFamily: "IBMPlexMono-Medium",
   },
   scroll: {
   }

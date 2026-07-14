@@ -22,7 +22,7 @@ export default function tasks_index() {
   const [deleteSound, setDeleteSound] = useState(null);
   const [tasks, setTasks] = useState<taskData[]>([]);
   const { width } = useWindowDimensions();
-  const adaptiveStyles = {
+  const adaptiveStyles = { // Адаптивные стили для страницы
     empty: {
       color: "white",
       textAlign: "center",
@@ -62,7 +62,6 @@ export default function tasks_index() {
 
   useFocusEffect( // Динамическое обновление списка заметок
     useCallback(() => {
-      //deleteFolder();
       console.log("load tasks files...");
       const loadFiles = async () => {
         const loadedFiles = await getTasks();
@@ -106,10 +105,10 @@ export default function tasks_index() {
       data={tasks}
       keyExtractor={(item) => item.filename} 
       renderItem={({ item }) => (
-        <View style={styles.notification, adaptiveStyles.notification}>
+        <View style={adaptiveStyles.notification}>
           <View style={styles.noteInfo}>
-            <Text style={styles.text, adaptiveStyles.text}>{stabilizeTitle(item.text, "task") || "Загрузка..."}</Text>
-            <Text style={styles.second_line, adaptiveStyles.second_line}>Сработает {getDisplayDate(Date.parse(item.date))}</Text>
+            <Text style={adaptiveStyles.text}>{stabilizeTitle(item.text, "task") || "Загрузка..."}</Text>
+            <Text style={adaptiveStyles.second_line}>Сработает {getDisplayDate(Date.parse(item.date))}</Text>
           </View>
           <SmallButton name={"trash"} backgroundColor="#e31313" borderRadius={10} onPress={async () => { // Удалить файл напоминания
             Alert.alert("Вы точно хотите удалить напомининание?", // Всплывающее окно с подтверждением 
@@ -140,7 +139,7 @@ export default function tasks_index() {
           )}} />
         </View>
       )}
-      ListEmptyComponent={<Text style={styles.empty, adaptiveStyles.empty}>Вы ничего не планировали. Создайте новое напоминание!</Text>}
+      ListEmptyComponent={<Text style={adaptiveStyles.empty}>Вы ничего не планировали. Создайте новое напоминание!</Text>}
     />
       <View style={styles.admin}>
         <Button label="Добавить напоминание" backgroundColor={colors.lava} onPress={() => { nav.navigate("newTask") }} />
@@ -156,38 +155,10 @@ const styles = StyleSheet.create({ // Таблица стилей
     alignItems: "center",
     experimental_backgroundImage: "linear-gradient(#0A0F1A, #341913)"
   },
-  notification: {
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    backdropFilter: "blur(10px)",
-    flex: 2,
-    flexDirection: "row",
-    borderWidth: 2,
-    borderColor: colors.lava,
-    borderRadius: 15,
-    padding: 20,
-    width: 325,
-    marginBottom: 5,
-    marginTop: 5,
-    gap: 30,
-  },
   noteInfo: {
     // Блок текмта с информацией
   },
-  second_line: {
-    color: colors.secondtext
-  },
     admin: {
       marginBottom: 50,
-  },
-  text: {
-    color: colors.white
-  },
-  empty: {
-    color: "white",
-    textAlign: "center",
-    marginTop: "50%",
-    marginRight: "3%",
-    marginLeft: "3%",
-    fontSize: 18,
   },
 })

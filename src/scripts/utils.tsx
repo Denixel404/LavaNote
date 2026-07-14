@@ -24,12 +24,12 @@ export const stabilizeTitle = (title: string, mode="null") => { // Обрезк�
   };
 }
 
-export const checkZero = (num: number) => {
+export const checkZero = (num: number) => { // Добавление нуля к формату даты
   if (num < 10) return `0${num}`
   else return num;
 }
 
-export const splitCategories = (categoriesStroke: string) => {
+export const splitCategories = (categoriesStroke: string) => { // Разбивка файла с категориями на массив с элементами
   let massive = undefined;
   try {
     massive = categoriesStroke.split(",").map(category => category.trim());

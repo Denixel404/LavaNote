@@ -40,7 +40,7 @@ export default function Index() {
   const [isLock, setIsLock] = useState(true);
 
   const { width } = useWindowDimensions();
-  const adaptiveStyle = {
+  const adaptiveStyle = { // Адаптивные стили для страницы
     note: {
       backgroundColor: "rgba(255, 255, 255, 0.06)",
       backdropFilter: "blur(10px)",
@@ -92,7 +92,7 @@ export default function Index() {
       borderColor: "#f1951d",
       borderRadius: 50,
       width: width > bigDisplay? 300 : 215,
-      height: width > bigDisplay? 60 : 30,
+      height: width > bigDisplay? 60 : 50,
       marginBottom: 15,
       textAlign: "center",
       color: colors.white,
@@ -184,12 +184,12 @@ export default function Index() {
     nav.navigate("editNote", {filename: file}); // Переадресация с передачей аргумента
   }
 
-  const updateList = (request: string) => {
+  const updateList = (request: string) => { // Обновить список при поисковом запросе
     setSearchValue(request);
     search(request);
   }
 
-  const search = (request: string) => {
+  const search = (request: string) => { // Поиск и фильтрация заметок по запросу
     console.log("search note...");
     console.log(`search of category: ${filterCategory}`)
     if ((!request.trim()) && (filterCategory == "Не выбрано")) {
@@ -209,12 +209,12 @@ export default function Index() {
     console.log("filtered!");
   }
 
-  const filterMode = () => {
+  const filterMode = () => { // Закрытие модального окна фильтров
     setFiltersVisible(false);
     search(searchValue);
   };
 
-  const unlockApp = async () => {
+  const unlockApp = async () => { // Разблокировка приложения
     console.log("checking your password...");
     const check = await verifyPassword(password);
 
@@ -225,7 +225,7 @@ export default function Index() {
     }
   };
 
-  const loadNotes = useCallback (async () => {
+  const loadNotes = useCallback (async () => { // Загрузка и обновление всех заметок из файлов
     const loadFiles = async () => {
       const loadedFiles = await getData();
       const filesContent = await Promise.all(
@@ -251,22 +251,22 @@ export default function Index() {
     loadFiles();
   }, []);
 
-  useEffect(() => { 
+  useEffect(() => { // Инициализация приложения
     const initApp = async () => {
       // Создание необходимых папок приложения и каналов
       if (accept_fileInit) await fileSystemInit(); 
       setAccept_fileInit(false);
-      // 
+      // Создание канала для уведомлений
       notifications.setNotificationChannelAsync("default", {
         name: "main channel",
         importance: notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
         lightColor: '#FF231F7C',
       });
-      // 
+      // Проверка на существование пароля
       const checkHasPass = await isHasPassword();
       setHasPassword(checkHasPass);
-      if (!checkHasPass) {
+      if (!checkHasPass) { // Если пароля нет - разблокируем
         setIsLock(false);
         console.log("app password not exists. Unlock");
       } else {
@@ -276,7 +276,7 @@ export default function Index() {
     initApp();
   });
 
-  useEffect(() => {
+  useEffect(() => { // Загрузка звуков
     const loadSound = async () => {
       const {sound: loadedSound} = await Audio.Sound.createAsync(require("@/assets/sounds/delete.mp3"));
       setDeleteSound(loadedSound);
@@ -292,7 +292,7 @@ export default function Index() {
       loadNotes();
     }, [loadNotes]) // Зависимости
   );
-  useEffect(() => {
+  useEffect(() => { // Подготовка анимаций
     spawnAnimation.setValue(-30);
     opacityAnimation.setValue(1);
     Animated.timing(spawnAnimation, {
@@ -385,15 +385,15 @@ export default function Index() {
         keyExtractor={(item) => item.uri} 
         renderItem={({ item }) => (
           <Animated.View style={{ transform: [{translateX: spawnAnimation}], opacity: opacityAnimation }}>
-            <TouchableOpacity style={styles.notes, adaptiveStyle.note} onPress={() => showNote(item.name)}>
+            <TouchableOpacity style={adaptiveStyle.note} onPress={() => showNote(item.name)}>
               <View style={styles.note}>
-                <Text style={styles.note_text, adaptiveStyle.note_text}>{stabilizeTitle(item.name)}</Text>
-                <Text style={styles.note_text_info, adaptiveStyle.note_text_info}>
+                <Text style={adaptiveStyle.note_text}>{stabilizeTitle(item.name)}</Text>
+                <Text style={adaptiveStyle.note_text_info}>
                   {getDisplayDate(item.creationTime)}
                 </Text>
-                <Text style={adaptiveStyle.note_category}>{item.content.category}</Text>
+                <Text style={adaptiveStyle.note_category}>{stabilizeTitle(item.content.category[0])}</Text>
               </View>
-              <View style={styles.notes_btns, adaptiveStyle.notes_btns}>
+              <View style={adaptiveStyle.notes_btns}>
 
                 <SmallButton name={"edit"} backgroundColor="#f1951d" borderRadius={10} onPress={() => editNote(item.name)}/>
                 <SmallButton name={"trash"} backgroundColor="#e31313" borderRadius={10} onPress={async () => {
@@ -418,9 +418,6 @@ export default function Index() {
                         }
                       };
                       playDeleteSound();
-                      const newList = await getData();
-                      // setFiles(newList);
-                      // setFilteredFiles(newList);
                       await loadNotes();
                     }
                   }]
@@ -430,7 +427,7 @@ export default function Index() {
             </TouchableOpacity>
           </Animated.View>
         )}
-        ListEmptyComponent={<Text style={styles.empty, adaptiveStyle.empty}>Здесь пока пусто. Попробуйте создать новую заметку</Text>}
+        ListEmptyComponent={<Text style={adaptiveStyle.empty}>Здесь пока пусто. Попробуйте создать новую заметку</Text>}
       />
       <View style={styles.footerContainer}>
         <Button label="Добавить заметку" backgroundColor={colors.lava} onPress={() => { nav.navigate("newNote") }} />
@@ -448,43 +445,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     experimental_backgroundImage: "linear-gradient(#0A0F1A, #341913)",
   },
-  notes: {
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    backdropFilter: "blur(10px)",
-    flex: 2,
-    flexDirection: "row",
-    borderWidth: 2,
-    borderColor: colors.lava,
-    borderRadius: 15,
-    padding: 20,
-    width: 325,
-    marginBottom: 5,
-    marginTop: 5,
-    gap: 47,
-  },
   note: {
     // Стили для кнопок
   },
-  notes_btns: {
-    flexDirection: "row",
-    width: "50%",
-  },
-  note_text: {
-    color: "white",
-    width: "100%"
-  },
-  note_text_info: {
-    color: colors.secondtext,
-    width: "100%"
-  },
   text: {
     color: "#fff",
-  },
-  empty: {
-    color: "white",
-    fontSize: 20,
-    textAlign: "center",
-    marginTop: 100,
   },
   sett_btn: {
     fontSize: 20,

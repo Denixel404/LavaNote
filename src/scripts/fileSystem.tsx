@@ -7,7 +7,7 @@ const folder_name = "LavaNote"; // Имя папки с данными прил�
 const dir = `${Paths.document}${folder_name}`; // Путь к основной папке
 const key_name = "LNSecureKey";
 
-export async function getKeystoreKey() {
+export async function getKeystoreKey() { // Получение ключа шифрования
     const key = await secureStore.getItemAsync(key_name);
     if (key) {
         return key;
@@ -20,7 +20,7 @@ export async function getKeystoreKey() {
     }
 }
 
-export async function fileSystemInit() {
+export async function fileSystemInit() { // Инициализация файлововой структуры приложения
     console.log("Initialization file structure...");
     await getKeystoreKey();
     console.log("Key ready");
@@ -113,7 +113,7 @@ export async function readFile(filename: string) { // Получение инф�
     }
 }
 
-export async function readDataFile(filename: string) {
+export async function readDataFile(filename: string) { // Чтение файла из папки LavaNote/data
     const folder = new Directory(Paths.document.uri + folder_name, "data");
     const file = new File(folder, filename);
     try {
@@ -133,7 +133,7 @@ export async function writeFile(filename: string, content: string) { // Пере
     await file.write(crypto);
 }
 
-export async function writeDataFile(filename: string, content: string) {
+export async function writeDataFile(filename: string, content: string) { // Перезапись файла в папке LavaNote/data
     const key = await getKeystoreKey();
     const folder = new Directory(Paths.document.uri + folder_name, "data");
     const file = new File(folder, filename);
@@ -233,7 +233,7 @@ export async function  getTasks() { // Получение списка всех 
     return files;
 }
 
-export async function deleteTask(filename: string) { // Удаление файла
+export async function deleteTask(filename: string) { // Удаление файла напоминания
     const folder = new Directory(Paths.document.uri + folder_name + "/data", "tasks");
     const file = new File(folder, filename);
     await file.delete(); 

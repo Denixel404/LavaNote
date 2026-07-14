@@ -22,7 +22,7 @@ export default function editNote() { // Основное наполнение с
   // ".txt" - для старых версий приложения до версии 2.х.х
   // "json" - новый формат заметок после версии 2.х.х
   const { width } = useWindowDimensions();
-  const adaptiveStyle = {
+  const adaptiveStyle = { // Адаптивные стили для страницы
     title: {
     color: "white",
     fontSize: 24,
@@ -125,17 +125,17 @@ export default function editNote() { // Основное наполнение с
 
   return (
       <View style={styles.container}>
-        <Text style={styles.text, adaptiveStyle.text}>Смените заголовок</Text>
+        <Text style={adaptiveStyle.text}>Смените заголовок</Text>
         <TextInput 
-          style={styles.input_title, adaptiveStyle.input_title}
+          style={adaptiveStyle.input_title}
           placeholder="Место для заголовка"
           placeholderTextColor="white"
           value={noteTitle}
           onChangeText={text => setNoteTitle(text)}
         />
-        <Text style={styles.text, adaptiveStyle.text}>Измените старый текст</Text>
+        <Text style={adaptiveStyle.text}>Измените старый текст</Text>
         <TextInput 
-          style={styles.input_text, adaptiveStyle.input_text}
+          style={adaptiveStyle.input_text}
           multiline={true}
           scrollEnabled={true}
           placeholder="Текст заметки"
@@ -174,34 +174,5 @@ const styles = StyleSheet.create({ // Таблица стилей
   title: {
     color: "white",
     fontSize: 24,
-  },
-  text: {
-    color: "#fff",
-    fontSize: 18,
-    marginTop: 30,
-    textAlign: "center"
-  },
-  input_text: {
-    height: 200,
-    width: 300,
-    borderColor: colors.lava,
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    marginBottom: 20,
-    marginTop: 20,
-    borderRadius: 5,
-    color: "white",
-    textAlignVertical: "top"
-  },
-  input_title: {
-    height: 40,
-    width: 300,
-    borderColor: "#e05807",
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    marginBottom: 20,
-    marginTop: 20,
-    borderRadius: 5,
-    color: "white"
   },
 })

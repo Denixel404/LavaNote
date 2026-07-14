@@ -18,7 +18,7 @@ export default function newNote() { // Основное наполнение с�
   const [selectedCategory, setSelectedCategory] = useState("--- Не выбрано ---");
 
   const { width } = useWindowDimensions();
-  const adaptiveStyle = {
+  const adaptiveStyle = { // Адаптивные стили для страницы
     input_text: {
       height: width > bigDisplay? 400 : 200,
       width: width > bigDisplay? 500 : 300,
@@ -125,16 +125,16 @@ export default function newNote() { // Основное наполнение с�
 
   return ( // Страница
       <View style={styles.container}>
-        <Text style={styles.title, adaptiveStyle.title}>Создайте новую заметку</Text>
+        <Text style={adaptiveStyle.title}>Создайте новую заметку</Text>
         <TextInput 
-          style={styles.input_title, adaptiveStyle.input_title}
+          style={adaptiveStyle.input_title}
           placeholder="Введите здесь имя заметки"
           placeholderTextColor={colors.secondtext}
           value={noteTitle}
           onChangeText={text => setNoteTitle(text)}
         />
         <TextInput 
-          style={styles.input_text, adaptiveStyle.input_text}
+          style={adaptiveStyle.input_text}
           multiline={true}
           scrollEnabled={true}
           placeholder="А здесь напишите её текст"
@@ -172,37 +172,10 @@ const styles = StyleSheet.create({ // Таблица стилей
     justifyContent: "flex-start",
     experimental_backgroundImage: "linear-gradient(#0A0F1A, #341913)"
   },
-  title: {
-    color: "white",
-    fontSize: 24,
-  },
   text: {
     color: "#fff",
     fontSize: 18,
     marginTop: 30,
     textAlign: "center"
   },
-  input_text: {
-    height: 200,
-    width: 300,
-    borderColor: colors.lava,
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    marginBottom: 20,
-    marginTop: 20,
-    borderRadius: 5,
-    color: "white",
-    textAlignVertical: "top"
-  },
-  input_title: {
-    height: 40,
-    width: 300,
-    borderColor: colors.lava,
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    marginBottom: 20,
-    marginTop: 20,
-    borderRadius: 5,
-    color: "white"
-  }
 })

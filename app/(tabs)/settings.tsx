@@ -26,7 +26,7 @@ const feedback = () => {
 }
 
 export default function Settings() { // Основное наполнение страницы
-  const [catVisible, setCatVisible] = useState(false);
+  const [catVisible, setCatVisible] = useState(false); 
   const [passVisible, setPassVisible] = useState(false);
   const [hasPassword, setHasPassword] = useState();
   const [password, setPassword] = useState("");
@@ -38,7 +38,7 @@ export default function Settings() { // Основное наполнение с
     "IBMPlexMono-Bold": require("@/assets/fonts/IBMPlexMono-Bold.ttf"),
   });
   const { width } = useWindowDimensions();
-  const adaptiveStyle = {
+  const adaptiveStyle = { // Адаптивные стили для страницы
     title: {
       color: "#fff",
       fontSize: width > bigDisplay? 46 : 32,
@@ -148,24 +148,23 @@ export default function Settings() { // Основное наполнение с
         };
         loadCategories();
       }, []) // Зависимости
-    );
+  );
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded) { // Проверка загрузки шрифтов
     return null;
   }
 
-  const openCategories = async () => {
-    console.log("opening categories...");
+  const openCategories = async () => { // Открытие модального окна с категориями
     setCatVisible(true);
   };
 
-  const saveCat = async (changes: string) => {
+  const saveCat = async (changes: string) => { // Сохрарнение файла с категориями
     writeDataFile("categories.txt", changes);
     console.log("categories was saved!");
     setCatVisible(false);
   };
 
-  const createPassword = async () => {
+  const createPassword = async () => { // Создание нового пароля для приложения
     if (password.length < 4) {
       alert("Пароль должен составлять не менее 4 символов");
       return;
@@ -185,7 +184,7 @@ export default function Settings() { // Основное наполнение с
     setPassVisible(false);
   };
 
-  const deletePassword = async () => {
+  const deletePassword = async () => { // Удаление пароля для приложения
     console.log("delete password...");
     const checkPass = await verifyPassword(password);
     if (checkPass) {
@@ -244,7 +243,7 @@ export default function Settings() { // Основное наполнение с
               <View style={adaptiveStyle.modalEnterPassword}>
                 <TextInput 
                   style={adaptiveStyle.modalInputPassword}
-                  placeholder="Повторите придуманный пароль"
+                  placeholder="Повторите пароль"
                   value={repeatPassword}
                   onChangeText={setRepeatPassword}
                   secureTextEntry={showRepeatPassword}
@@ -279,8 +278,8 @@ export default function Settings() { // Основное наполнение с
       </Modal>
 
       <View style={styles.banner}>
-        <Text style={styles.title, adaptiveStyle.title}>LavaNote</Text>
-        <Text style={styles.text, adaptiveStyle.text}>Версия: {Constants.expoConfig?.version}</Text>
+        <Text style={adaptiveStyle.title}>LavaNote</Text>
+        <Text style={adaptiveStyle.text}>Версия: {Constants.expoConfig?.version}</Text>
       </View>
       <Feature label="Изменить категории" backgroundColor="#482203bd" onPress={async () => openCategories()}/>
       <Feature label="Настроить пароль" backgroundColor="#482203bd" onPress={() => {
@@ -292,7 +291,7 @@ export default function Settings() { // Основное наполнение с
       <SocialLink image={miniIcon} label="Спасибо, Flaticon!"  url="https://www.flaticon.com/free-icons/lava"/>
   
       <TouchableOpacity style={styles.feedback} onPress={feedback}>
-        <Text style={styles.text, adaptiveStyle.text}>✏️ Нашли баг или есть идея?</Text>
+        <Text style={adaptiveStyle.text}>✏️ Нашли баг или есть идея?</Text>
       </TouchableOpacity>
     </View>
   );
@@ -314,14 +313,6 @@ const styles = StyleSheet.create({ // Таблица стилей
   },
   linksList: {
 
-  },
-  title: {
-    color: "#fff",
-    fontSize: 32,
-    fontFamily: "IBMPlexMono-Bold",
-  },
-  text: {
-    color: "#fff",
   },
   feedback: {
     marginTop: 30,
