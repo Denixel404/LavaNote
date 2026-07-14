@@ -84,16 +84,19 @@ export default function Index() {
     },
     search: {
       flexDirection: "row",
-      gap: 7,
+      gap: width > bigDisplay? 30 : 7,
+      marginTop: width > bigDisplay? 20 : 5,
     },
     search_input: {
       borderWidth: 2,
       borderColor: "#f1951d",
       borderRadius: 50,
-      width: 215,
+      width: width > bigDisplay? 300 : 215,
+      height: width > bigDisplay? 60 : 30,
       marginBottom: 15,
       textAlign: "center",
       color: colors.white,
+      fontSize: width > bigDisplay? 22 : 15,
     },
     modalFilters: {
       backgroundColor: colors.panel,
@@ -114,23 +117,24 @@ export default function Index() {
     btn_filters: {
       flexDirection: "column",
       marginTop: 50,
-      gap: 10,
+      gap: width > bigDisplay? 20 : 10,
     },
     fall_list: {
       color: colors.white,
-      height: 75,
+      height: width > bigDisplay? 100 : 75,
       width: "90%",
     },
     category: {
       borderWidth: 2,
       borderColor: colors.lava,
       width: "87%",
-      height: 50,
+      height: width > bigDisplay? 75 : 50,
       borderRadius: 50,
       alignItems: "center",
       justifyContent: "center",
       marginTop: 10,
       marginBottom: 30,
+      fontSize: width > bigDisplay? 22 : 15,
     },
     modalEnterPassword: {
       backgroundColor: colors.panel,
@@ -146,15 +150,16 @@ export default function Index() {
       borderWidth: 2,
       borderColor: colors.lava,
       borderRadius: 20,
-      height: "60%",
-      width: "80%",
+      height: width > bigDisplay? "80%" : "60%",
+      width: width > bigDisplay? "60%" : "80%",
       textAlignVertical: "top",
       marginTop: 20,
       marginBottom: 10,
       padding: 10,
+      fontSize: width > bigDisplay? 22 : 15,
     },
     button: {
-      marginTop: 30,
+      marginTop: width > bigDisplay? 60 : 30,
     },
     modalWelcome: {
       color: "#fff",
@@ -167,7 +172,7 @@ export default function Index() {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      gap: 10,
+      gap: width > bigDisplay? 25 : 10,
     },
   }
 
@@ -220,10 +225,36 @@ export default function Index() {
     }
   };
 
+  const loadNotes = useCallback (async () => {
+    const loadFiles = async () => {
+      const loadedFiles = await getData();
+      const filesContent = await Promise.all(
+        loadedFiles.map(async (file) => {
+          const noteContent = await readFile(file.name);
+          let content = [];
+          try {
+            const key = await getKeystoreKey();
+            content = decryptAES(JSON.parse(noteContent), key);
+          } catch (error) {
+            content = JSON.parse(noteContent);
+          }
+          file.content = content;
+          return file;
+        })
+      );
+      setFiles(filesContent);
+      setFilteredFiles(filesContent);
+
+      const loadedCategories = await readDataFile("categories.txt");
+      setAllCategories(splitCategories(loadedCategories));
+    };
+    loadFiles();
+  }, []);
+
   useEffect(() => { 
     const initApp = async () => {
       // Создание необходимых папок приложения и каналов
-      if (accept_fileInit) fileSystemInit(); 
+      if (accept_fileInit) await fileSystemInit(); 
       setAccept_fileInit(false);
       // 
       notifications.setNotificationChannelAsync("default", {
@@ -258,30 +289,8 @@ export default function Index() {
 
   useFocusEffect( // Динамическое обновление списка заметок
     useCallback(() => {
-      const loadFiles = async () => {
-        const loadedFiles = await getData();
-        const filesContent = await Promise.all(
-          loadedFiles.map(async (file) => {
-            const noteContent = await readFile(file.name);
-            let content = [];
-            try {
-              const key = await getKeystoreKey();
-              content = decryptAES(JSON.parse(noteContent), key);
-            } catch (error) {
-              content = JSON.parse(noteContent);
-            }
-            file.content = content;
-            return file;
-          })
-        );
-        setFiles(filesContent);
-        setFilteredFiles(filesContent);
-
-        const loadedCategories = await readDataFile("categories.txt");
-        setAllCategories(splitCategories(loadedCategories));
-      };
-      loadFiles();
-    }, []) // Зависимости
+      loadNotes();
+    }, [loadNotes]) // Зависимости
   );
   useEffect(() => {
     spawnAnimation.setValue(-30);
@@ -410,7 +419,9 @@ export default function Index() {
                       };
                       playDeleteSound();
                       const newList = await getData();
-                      setFiles(newList);
+                      // setFiles(newList);
+                      // setFilteredFiles(newList);
+                      await loadNotes();
                     }
                   }]
                   )}} 

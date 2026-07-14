@@ -46,7 +46,7 @@ export default function newNote() { // Основное наполнение с�
     },
     text: {
       color: "#fff",
-      fontSize: 18,
+      fontSize: width > bigDisplay? 22 : 15,
       marginTop: 30,
       textAlign: "center"
     },
@@ -55,7 +55,7 @@ export default function newNote() { // Основное наполнение с�
       fontSize: width > bigDisplay? 26 : 24,
     },
     button: {
-      marginTop: 30,
+      marginTop: width > bigDisplay? 75 : 30,
     },
     fall_list: {
       color: colors.white,
@@ -66,7 +66,7 @@ export default function newNote() { // Основное наполнение с�
       borderWidth: 2,
       borderColor: colors.lava,
       width: "87%",
-      height: 50,
+      height: width > bigDisplay? 75 : 50,
       borderRadius: 50,
       alignItems: "center",
       justifyContent: "center",

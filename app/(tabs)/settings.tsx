@@ -60,7 +60,7 @@ export default function Settings() { // Основное наполнение с
     },
     modalTitle: {
       color: "#fff",
-      fontSize: width > bigDisplay? 22 : 18,
+      fontSize: width > bigDisplay? 25 : 18,
       marginTop: 75,
       textAlign: "center",
     },
@@ -74,13 +74,14 @@ export default function Settings() { // Основное наполнение с
       textAlignVertical: "top",
       marginTop: 20,
       marginBottom: 50,
+      fontSize: width > bigDisplay? 22 : 15,
     },
     modalPasswordPage: {
       backgroundColor: colors.panel,
       width: "100%",
       height: "100%",
       alignItems: "center",
-      padding: 10,
+      padding: width > bigDisplay? 25 : 10,
       marginTop: 30,
     },
     modalInputPassword: {
@@ -88,21 +89,22 @@ export default function Settings() { // Основное наполнение с
       borderWidth: 2,
       borderColor: colors.lava,
       borderRadius: 20,
-      height: 40,
+      height: width > bigDisplay? 60 : 40,
       width: "80%",
       textAlignVertical: "top",
       marginTop: 20,
       marginBottom: 10,
       padding: 10,
+      fontSize: width > bigDisplay? 22 : 15,
     },
     modalTextPasswordPage: {
       color: colors.white,
-      fontSize: 18,
+      fontSize: width > bigDisplay? 22 : 15,
       textAlign: "center",
     },
     modalTextPasswordPageY: {
       color: colors.white,
-      fontSize: 18,
+      fontSize: width > bigDisplay? 22 : 15,
     },
     modalWarn: {
       padding: 10,
@@ -114,7 +116,7 @@ export default function Settings() { // Основное наполнение с
       fontSize: width > bigDisplay? 22 : 15,
     },
     button: {
-      marginTop: 30,
+      marginTop: width > bigDisplay? 60 : 30,
     },
     modalEditPasswordPage: {
       backgroundColor: colors.panel,
@@ -130,7 +132,8 @@ export default function Settings() { // Основное наполнение с
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      gap: 10,
+      gap: width > bigDisplay? 25 : 10,
+      marginBottom: width > bigDisplay? 10 : 0,
     },
   }
 
