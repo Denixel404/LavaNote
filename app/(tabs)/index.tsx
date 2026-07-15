@@ -38,6 +38,7 @@ export default function Index() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(true);
   const [isLock, setIsLock] = useState(true);
+  const [initReady, setInitReady] = useState(false);
 
   const { width } = useWindowDimensions();
   const adaptiveStyle = { // Адаптивные стили для страницы
@@ -233,10 +234,10 @@ export default function Index() {
           const noteContent = await readFile(file.name);
           let content = [];
           try {
-            const key = await getKeystoreKey();
-            content = decryptAES(JSON.parse(noteContent), key);
-          } catch (error) {
             content = JSON.parse(noteContent);
+          } catch (error) {
+            console.error(`Parse error: ${error}`);
+            content = {title: "Не найдено", text: "Не удалось прочитать", category: []}
           }
           file.content = content;
           return file;
@@ -272,6 +273,7 @@ export default function Index() {
       } else {
         console.log("app is lock. Enter the password");
       }
+      setInitReady(true);
     }
     initApp();
   });
@@ -289,8 +291,8 @@ export default function Index() {
 
   useFocusEffect( // Динамическое обновление списка заметок
     useCallback(() => {
-      loadNotes();
-    }, [loadNotes]) // Зависимости
+      if (initReady) loadNotes();
+    }, [initReady, loadNotes]) // Зависимости
   );
   useEffect(() => { // Подготовка анимаций
     spawnAnimation.setValue(-30);
