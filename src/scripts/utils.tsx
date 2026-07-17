@@ -11,7 +11,7 @@ export const getDisplayDate = (timestamp: number) => {
   return date.toLocaleString('ru-RU', { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 };
 
-export const stabilizeTitle = (title: string, mode="null") => { // Обрезка длины заголовка
+export const stabilizeTitle = (title: any, mode="null") => { // Обрезка длины заголовка
   if (!title) return "Обработка..."
   let max = 16; // максимальная длина с учётом приписки .txt
   if (mode == "task")  max = 24; 

@@ -232,7 +232,7 @@ export default function Index() {
       const filesContent = await Promise.all(
         loadedFiles.map(async (file) => {
           const noteContent = await readFile(file.name);
-          let content = [];
+          let content = {};
           try {
             content = JSON.parse(noteContent);
           } catch (error) {
@@ -393,7 +393,7 @@ export default function Index() {
                 <Text style={adaptiveStyle.note_text_info}>
                   {getDisplayDate(item.creationTime)}
                 </Text>
-                <Text style={adaptiveStyle.note_category}>{stabilizeTitle(item.content.category[0])}</Text>
+                <Text style={adaptiveStyle.note_category}>{stabilizeTitle(item.content?.category?.[0] || "Без категории")}</Text>
               </View>
               <View style={adaptiveStyle.notes_btns}>
 
