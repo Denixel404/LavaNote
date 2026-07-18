@@ -12,7 +12,7 @@ import { isHasPassword, verifyPassword } from "@/src/scripts/security";
 
 import Button from "../components/Button";
 import SmallButton from "../components/SmallButton";
-import { getData, deleteFile, fileSystemInit, readFile, readDataFile, getKeystoreKey } from "@/src/scripts/fileSystem";
+import { getData, deleteFile, fileSystemInit, readFile, readDataFile, exportNoteFile } from "@/src/scripts/fileSystem";
 import { getDisplayDate, stabilizeTitle, splitCategories } from "@/src/scripts/utils";
 import { colors, bigDisplay, gui } from "@/src/globalVars";
 
@@ -258,8 +258,9 @@ export default function Index() {
     loadFiles();
   }, []);
 
-  const exportNote = async () => {
+  const exportNote = async (noteFilename: string) => {
     console.log("exportNote...");
+    await exportNoteFile(noteFilename);
   }
 
   const importNote = async () => {
@@ -412,7 +413,7 @@ export default function Index() {
               <View style={adaptiveStyle.notes_btns}>
 
                 <SmallButton name={"edit"} backgroundColor="#f1951d" borderRadius={10} size={gui.noteButtonSize} iconSize={gui.noteButtonIconSize} onPress={() => editNote(item.name)} />
-                <SmallButton name={"upload"} backgroundColor="#a3b626" borderRadius={10} size={gui.noteButtonSize} iconSize={gui.noteButtonIconSize} onPress={async () => exportNote()} />
+                <SmallButton name={"upload"} backgroundColor="#a3b626" borderRadius={10} size={gui.noteButtonSize} iconSize={gui.noteButtonIconSize} onPress={async () => await exportNote(item.name)} />
                 <SmallButton name={"trash"} backgroundColor="#e31313" borderRadius={10} size={gui.noteButtonSize} iconSize={gui.noteButtonIconSize} onPress={async () => {
                   Alert.alert(`Вы действительно хотите удалить ${item.name}?`, 
                   "Это действие невозможно отменить", 

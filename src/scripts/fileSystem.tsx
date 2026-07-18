@@ -2,6 +2,9 @@ import { File, Directory, Paths } from "expo-file-system";
 import { router } from "expo-router";
 import * as secureStore from "expo-secure-store";
 import { generateAESKey, encryptAES, decryptAES } from "rn-encryption";
+import * as sharing from "expo-sharing";
+import * as documentPicker from "expo-document-picker";
+import { Alert } from "react-native";
 
 const folder_name = "LavaNote"; // Имя папки с данными приложения
 const dir = `${Paths.document}${folder_name}`; // Путь к основной папке
@@ -240,3 +243,41 @@ export async function deleteTask(filename: string) { // Удаление фай�
     console.log(`FileSystem: file ${filename} was deleted`);
 }
 
+export async function exportNoteFile(filename: string) {
+    const notesFolder = new Directory(Paths.document, folder_name);
+    const noteFile = new File(notesFolder, filename);
+    const tempFolder = new Directory(Paths.cache);
+    const tempNoteFile = new File(tempFolder, `${filename}.decrypt`)
+    const key = await getKeystoreKey();
+    try {
+        if (!(noteFile.exists)) {
+            Alert.alert("Ошибка", "Файл заметки не существует");
+            return
+        }
+
+        const encryptedNoteText = await noteFile.text();
+        let decryptedNoteText = "";
+        try {
+            decryptedNoteText = await decryptAES(encryptedNoteText, key);
+        } catch (error) {
+            console.warn(`fileSystem: when exporting note, note text not encrypted or it has errors. Error Text: ${error}`)
+            decryptedNoteText = encryptedNoteText;
+        }
+        tempNoteFile.create({ overwrite: true });
+        tempNoteFile.write(decryptedNoteText);
+
+        if (await sharing.isAvailableAsync()) {
+            await sharing.shareAsync(tempNoteFile.uri, {
+                mimeType: "application/json",
+                dialogTitle: "Сохранить заметку",
+                UTI: `${filename.slice(0, -5)}.json`,
+            });
+        } else {
+            Alert.alert("Ошибка", "Ваше устройство не поддерживает эту функцию")
+        }
+        await tempNoteFile.delete();
+    } catch (error) {
+        console.error(`Export note error: ${error}`);
+        Alert.alert("Ошибка", "Не удалось экспортировать заметку");
+    }
+}
