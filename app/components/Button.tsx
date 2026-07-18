@@ -23,7 +23,7 @@ export default function Button ({ label, backgroundColor, onPress }: Props) {
             alignItems: "center",
             justifyContent: "center",
             padding: 3,
-            marginBottom: width > bigDisplay? 70 : 20,
+            //marginBottom: width > bigDisplay? 70 : 20,
         },
         buttonLabel: {
             color: "#fff",

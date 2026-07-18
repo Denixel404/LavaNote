@@ -13,4 +13,10 @@ export const colors = {
     "white": "#ffffff",
     "black": "#000000",
     "unactive_input": "#0b0b10",
+    "search_panel": "#f17c1d",
+}
+
+export const gui = {
+    noteButtonSize: 45,
+    noteButtonIconSize: 30,
 }

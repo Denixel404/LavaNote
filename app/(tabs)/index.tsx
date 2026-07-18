@@ -14,7 +14,7 @@ import Button from "../components/Button";
 import SmallButton from "../components/SmallButton";
 import { getData, deleteFile, fileSystemInit, readFile, readDataFile, getKeystoreKey } from "@/src/scripts/fileSystem";
 import { getDisplayDate, stabilizeTitle, splitCategories } from "@/src/scripts/utils";
-import { colors, bigDisplay } from "@/src/globalVars";
+import { colors, bigDisplay, gui } from "@/src/globalVars";
 
 const sec = 1000;
 
@@ -54,7 +54,7 @@ export default function Index() {
       width: width > bigDisplay? 440 : 330,
       marginBottom: 5,
       marginTop: 5,
-      gap: 47,
+      gap: 10,
     },
     note_text: {
       color: "white",
@@ -74,7 +74,7 @@ export default function Index() {
     notes_btns: {
       flexDirection: "row",
       width: "50%",
-      gap: width > bigDisplay? 40 : 5,
+      gap: width > bigDisplay? 40 : 0,
       marginTop: width > bigDisplay? 10 : 0,
     },
     empty: {
@@ -90,7 +90,7 @@ export default function Index() {
     },
     search_input: {
       borderWidth: 2,
-      borderColor: "#f1951d",
+      borderColor: colors.search_panel,
       borderRadius: 50,
       width: width > bigDisplay? 300 : 215,
       height: width > bigDisplay? 60 : 50,
@@ -175,6 +175,12 @@ export default function Index() {
       justifyContent: "center",
       gap: width > bigDisplay? 25 : 10,
     },
+    footerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    margin: 50,
+    gap: width > bigDisplay? 105 : 15,
+  },
   }
 
   const showNote = (note: string) => { // Действия кнопки показа заметки
@@ -251,6 +257,14 @@ export default function Index() {
     };
     loadFiles();
   }, []);
+
+  const exportNote = async () => {
+    console.log("exportNote...");
+  }
+
+  const importNote = async () => {
+    console.log("Import note...");
+  }
 
   useEffect(() => { // Инициализация приложения
     const initApp = async () => {
@@ -379,8 +393,8 @@ export default function Index() {
           value={searchValue}
           onChangeText={text => updateList(text)}
         />
-        <SmallButton name="search" backgroundColor="#f1951d" borderRadius={17} onPress={() => search(searchValue)}/>
-        <SmallButton name="filter" backgroundColor="#f1951d" borderRadius={17} onPress={() => setFiltersVisible(true)}/>
+        <SmallButton name="search" backgroundColor={colors.search_panel} borderRadius={17} onPress={() => search(searchValue)}/>
+        <SmallButton name="filter" backgroundColor={colors.search_panel} borderRadius={17} onPress={() => setFiltersVisible(true)}/>
       </View>
       <FlatList
         data={filteredFiles}
@@ -397,8 +411,9 @@ export default function Index() {
               </View>
               <View style={adaptiveStyle.notes_btns}>
 
-                <SmallButton name={"edit"} backgroundColor="#f1951d" borderRadius={10} onPress={() => editNote(item.name)}/>
-                <SmallButton name={"trash"} backgroundColor="#e31313" borderRadius={10} onPress={async () => {
+                <SmallButton name={"edit"} backgroundColor="#f1951d" borderRadius={10} size={gui.noteButtonSize} iconSize={gui.noteButtonIconSize} onPress={() => editNote(item.name)} />
+                <SmallButton name={"upload"} backgroundColor="#a3b626" borderRadius={10} size={gui.noteButtonSize} iconSize={gui.noteButtonIconSize} onPress={async () => exportNote()} />
+                <SmallButton name={"trash"} backgroundColor="#e31313" borderRadius={10} size={gui.noteButtonSize} iconSize={gui.noteButtonIconSize} onPress={async () => {
                   Alert.alert(`Вы действительно хотите удалить ${item.name}?`, 
                   "Это действие невозможно отменить", 
                   [
@@ -431,8 +446,9 @@ export default function Index() {
         )}
         ListEmptyComponent={<Text style={adaptiveStyle.empty}>Здесь пока пусто. Попробуйте создать новую заметку</Text>}
       />
-      <View style={styles.footerContainer}>
+      <View style={adaptiveStyle.footerContainer}>
         <Button label="Добавить заметку" backgroundColor={colors.lava} onPress={() => { nav.navigate("newNote") }} />
+        <SmallButton name="download" backgroundColor={colors.lava} size={68} iconSize={35} borderRadius={15}  onPress={async () => await importNote()} />
       </View>
 
     </View>
@@ -457,10 +473,5 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textDecorationLine: "underline",
     color: "#fff"
-  },
-  footerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    margin: 50
   },
 })
