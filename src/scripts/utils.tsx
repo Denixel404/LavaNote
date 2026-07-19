@@ -12,16 +12,21 @@ export const getDisplayDate = (timestamp: number) => {
 };
 
 export const stabilizeTitle = (title: any, mode="null") => { // Обрезка длины заголовка
-  if (!title) return "Обработка..."
-  let max = 16; // максимальная длина с учётом приписки .txt
-  if (mode == "task")  max = 24; 
-  const formated_title = title.replace(".json", "");
-  if (formated_title.length > max) {
-    const cutText = formated_title.substring(0, max - 3) + "...";
-    return cutText;
-  } else {
-    return formated_title;
-  };
+  try {
+    if ((title == undefined) || (title == null)) return "Ошибка загрузки";
+    let max = 16; // максимальная длина с учётом приписки .txt
+    if (mode == "task")  max = 24; 
+    const formated_title = title.replace(".json", "");
+    if (formated_title.length > max) {
+      const cutText = formated_title.substring(0, max - 3) + "...";
+      return cutText;
+    } else {
+      return formated_title;
+    };
+  } catch (error) {
+    console.error(`Title not stabilized: ${error}`);
+    return "Ошибка загрузки";
+  }
 }
 
 export const checkZero = (num: number) => { // Добавление нуля к формату даты
@@ -37,4 +42,10 @@ export const splitCategories = (categoriesStroke: string) => { // Разбивк
     console.error(`Categories error: ${error}`);
   }
   return massive;
+}
+
+export const getRandInt = (minInt: number, maxInt: number) => {
+  const min = Math.ceil(minInt);
+  const max = Math.floor(maxInt);
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }

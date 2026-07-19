@@ -12,7 +12,7 @@ import { isHasPassword, verifyPassword } from "@/src/scripts/security";
 
 import Button from "../components/Button";
 import SmallButton from "../components/SmallButton";
-import { getData, deleteFile, fileSystemInit, readFile, readDataFile, exportNoteFile } from "@/src/scripts/fileSystem";
+import { getData, deleteFile, fileSystemInit, readFile, readDataFile, exportNoteFile, importNoteFile } from "@/src/scripts/fileSystem";
 import { getDisplayDate, stabilizeTitle, splitCategories } from "@/src/scripts/utils";
 import { colors, bigDisplay, gui } from "@/src/globalVars";
 
@@ -265,6 +265,8 @@ export default function Index() {
 
   const importNote = async () => {
     console.log("Import note...");
+    await importNoteFile();
+    await loadNotes();
   }
 
   useEffect(() => { // Инициализация приложения
@@ -404,7 +406,7 @@ export default function Index() {
           <Animated.View style={{ transform: [{translateX: spawnAnimation}], opacity: opacityAnimation }}>
             <TouchableOpacity style={adaptiveStyle.note} onPress={() => showNote(item.name)}>
               <View style={styles.note}>
-                <Text style={adaptiveStyle.note_text}>{stabilizeTitle(item.name)}</Text>
+                <Text style={adaptiveStyle.note_text}>{stabilizeTitle(item?.name || "Ошибка загрузки")}</Text>
                 <Text style={adaptiveStyle.note_text_info}>
                   {getDisplayDate(item.creationTime)}
                 </Text>
@@ -413,7 +415,7 @@ export default function Index() {
               <View style={adaptiveStyle.notes_btns}>
 
                 <SmallButton name={"edit"} backgroundColor="#f1951d" borderRadius={10} size={gui.noteButtonSize} iconSize={gui.noteButtonIconSize} onPress={() => editNote(item.name)} />
-                <SmallButton name={"upload"} backgroundColor="#a3b626" borderRadius={10} size={gui.noteButtonSize} iconSize={gui.noteButtonIconSize} onPress={async () => await exportNote(item.name)} />
+                <SmallButton name={"share"} backgroundColor="#a3b626" borderRadius={10} size={gui.noteButtonSize} iconSize={gui.noteButtonIconSize} onPress={async () => await exportNote(item.name)} />
                 <SmallButton name={"trash"} backgroundColor="#e31313" borderRadius={10} size={gui.noteButtonSize} iconSize={gui.noteButtonIconSize} onPress={async () => {
                   Alert.alert(`Вы действительно хотите удалить ${item.name}?`, 
                   "Это действие невозможно отменить", 

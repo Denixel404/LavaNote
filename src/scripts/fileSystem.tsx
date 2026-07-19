@@ -5,6 +5,7 @@ import { generateAESKey, encryptAES, decryptAES } from "rn-encryption";
 import * as sharing from "expo-sharing";
 import * as documentPicker from "expo-document-picker";
 import { Alert } from "react-native";
+import { getRandInt } from "./utils";
 
 const folder_name = "LavaNote"; // Имя папки с данными приложения
 const dir = `${Paths.document}${folder_name}`; // Путь к основной папке
@@ -247,7 +248,7 @@ export async function exportNoteFile(filename: string) {
     const notesFolder = new Directory(Paths.document, folder_name);
     const noteFile = new File(notesFolder, filename);
     const tempFolder = new Directory(Paths.cache);
-    const tempNoteFile = new File(tempFolder, `${filename}.decrypt`)
+    const tempNoteFile = new File(tempFolder, `${filename}`)
     const key = await getKeystoreKey();
     try {
         if (!(noteFile.exists)) {
@@ -270,7 +271,7 @@ export async function exportNoteFile(filename: string) {
             await sharing.shareAsync(tempNoteFile.uri, {
                 mimeType: "application/json",
                 dialogTitle: "Сохранить заметку",
-                UTI: `${filename.slice(0, -5)}.json`,
+                UTI: `${filename}`,
             });
         } else {
             Alert.alert("Ошибка", "Ваше устройство не поддерживает эту функцию")
@@ -280,4 +281,64 @@ export async function exportNoteFile(filename: string) {
         console.error(`Export note error: ${error}`);
         Alert.alert("Ошибка", "Не удалось экспортировать заметку");
     }
+}
+export async function importNoteFile() {
+    const selection = await documentPicker.getDocumentAsync({type: "application/json", copyToCacheDirectory: true});
+    if (selection.canceled) {
+        console.log("import file was canceled");
+        return;
+    }
+
+    const receivedFile = selection.assets[0];
+    const fileUri = receivedFile.uri;
+
+    const noteFile = new File(fileUri);
+    const importedText = await noteFile.text();
+
+    let content;
+    let title;
+    try {
+        content = JSON.parse(importedText);
+        if ((!content.title) || (!content.text) || (!content.category)) {
+            Alert.alert("Ошибка импорта", "Выбранный вами файл повреждён");
+            return;
+        }
+        if ((typeof content.title !== "string") || (typeof content.text !== "string") || (typeof content.category !== "object")) {
+            Alert.alert("Ошибка импорта", "Выбранный вами файл повреждён");
+            return;
+        }
+        if (content.category.length <= 0) {
+            content.category.push("--- Не выбрано ---");
+        } else if (content.category.length == 1) {
+            if (typeof content.category[0] !== "string") {
+                Alert.alert("Ошибка импорта", "Выбранный вами файл повреждён");
+                return;
+            }
+        } else {
+            Alert.alert("Ошибка импорта", "Выбранный вами файл повреждён");
+            return;
+        }
+        title = content.title;
+    } catch (error) {
+        console.error(`checking the file over with error: ${error}`);
+        return
+    }
+
+    console.log("succeful imported file verification");
+    const key = await getKeystoreKey();
+    const encpyptedContent = encryptAES(importedText, key);
+    
+    try {
+        const filename = receivedFile.name || `note${getRandInt(0, 999)}.json`;
+        const homeFolder = new Directory(Paths.document, folder_name);
+        const file = new File(homeFolder, filename);
+
+        await file.create({ overwrite: true });
+        await file.write(encpyptedContent);
+        console.log("import note succeful")
+    } catch (error) {
+        console.error(`imported note error with save: ${error}`);
+        return;
+    }
+   
 }
