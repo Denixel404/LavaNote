@@ -79,13 +79,13 @@ export async function fileSystemInit() { // Инициализация файл�
     console.log("Initialization file structure complete!\n");
 }
 
-export async function createFile(filename: string, content: string[], category: string) { // Создание новой заметки
+export async function createFile(filename: string, content: string[], category: string, markdown: boolean) { // Создание новой заметки
     console.log("");
     const key = await getKeystoreKey()
     const folder = new Directory(Paths.document, folder_name) 
     await folder.create({ intermediates: true, idempotent: true }); // Создани основной папки если ее нет
     console.log("FileSystem: folder ready");
-    const noteMassive = {"title": content[0], "text": content[1], "category": [category]}; 
+    const noteMassive = {"title": content[0], "text": content[1], "category": [category], "markdown": markdown}; 
     
     const file = new File(folder, filename);
     if (!(await file.exists)){ // Проверка на существование файла

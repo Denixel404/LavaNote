@@ -79,6 +79,13 @@ export default function TabLayout() {
                     href: null,
                 }}
             />
+            <Tabs.Screen
+                name="mdGuide"
+                options={{
+                    title: "Памятка по Markdown",
+                    href: null,
+                }}
+            />
         </Tabs>
     );
 }

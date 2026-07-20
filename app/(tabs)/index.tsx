@@ -7,7 +7,6 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Audio } from "expo-av";
 import { Picker } from "@react-native-picker/picker";
 import * as notifications from "expo-notifications";
-import { decryptAES, encryptAES } from "rn-encryption";
 import { isHasPassword, verifyPassword } from "@/src/scripts/security";
 
 import Button from "../components/Button";

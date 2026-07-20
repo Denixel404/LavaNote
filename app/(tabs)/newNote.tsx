@@ -1,9 +1,10 @@
-import { Text, View, TextInput, useWindowDimensions } from "react-native";
+import { Text, View, TextInput, useWindowDimensions, ScrollView, Switch } from "react-native";
 import { StyleSheet } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { useState, useEffect, useCallback } from "react";
 import { Audio } from "expo-av";
 import { Picker } from "@react-native-picker/picker";
+import { useNavigation } from "@react-navigation/native";
 
 import Button from "../components/Button";
 import { createFile, readDataFile } from "@/src/scripts/fileSystem";
@@ -16,6 +17,8 @@ export default function newNote() { // Основное наполнение с�
   const [addSound, setAddSound] = useState(null);
   const [allCategories, setAllCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("--- Не выбрано ---");
+  const [isMarkdown, setIsMarkdown] = useState(false);
+  const nav = useNavigation();
 
   const { width } = useWindowDimensions();
   const adaptiveStyle = { // Адаптивные стили для страницы
@@ -47,8 +50,13 @@ export default function newNote() { // Основное наполнение с�
     text: {
       color: "#fff",
       fontSize: width > bigDisplay? 22 : 15,
-      marginTop: 30,
       textAlign: "center"
+    },
+    hyperlink: {
+      color: "#3a58ed",
+      fontSize: width > bigDisplay? 22 : 15,
+      textAlign: "left",
+      textDecorationLine: "underline",
     },
     title: {
       color: "white",
@@ -56,6 +64,7 @@ export default function newNote() { // Основное наполнение с�
     },
     button: {
       marginTop: width > bigDisplay? 75 : 30,
+      marginBottom: width > bigDisplay? 75 : 30,
     },
     fall_list: {
       color: colors.white,
@@ -65,13 +74,25 @@ export default function newNote() { // Основное наполнение с�
     category: {
       borderWidth: 2,
       borderColor: colors.lava,
-      width: "87%",
+      width: "100%",
       height: width > bigDisplay? 75 : 50,
       borderRadius: 50,
       alignItems: "center",
       justifyContent: "center",
       marginTop: 10,
-    }
+    },
+    md_switch: {
+      flexDirection: "row",
+      alignItems: "center",
+      width: "87%",
+    },
+    block: {
+      marginTop: 30,
+      width: "87%",
+    },
+    scrollView: {
+
+    },
   }
 
   useEffect(() => { // Загрузка звуков
@@ -103,7 +124,7 @@ export default function newNote() { // Основное наполнение с�
     };
     
     let content = [noteTitle, noteText]
-    createFile(`${noteTitle}.json`, content, selectedCategory)
+    createFile(`${noteTitle}.json`, content, selectedCategory, isMarkdown)
     // Функция для проигрывания звука
     const playAddSound = async () => { 
       if (addSound) {
@@ -121,27 +142,30 @@ export default function newNote() { // Основное наполнение с�
     // Очистка
     setNoteTitle("");
     setNoteText("");
+    setIsMarkdown(false);
+    setSelectedCategory("--- Не выбрано ---");
   }   
 
   return ( // Страница
-      <View style={styles.container}>
-        <Text style={adaptiveStyle.title}>Создайте новую заметку</Text>
-        <TextInput 
-          style={adaptiveStyle.input_title}
-          placeholder="Введите здесь имя заметки"
-          placeholderTextColor={colors.secondtext}
-          value={noteTitle}
-          onChangeText={text => setNoteTitle(text)}
-        />
-        <TextInput 
-          style={adaptiveStyle.input_text}
-          multiline={true}
-          scrollEnabled={true}
-          placeholder="А здесь напишите её текст"
-          placeholderTextColor={colors.secondtext}
-          value={noteText}
-          onChangeText={text => setNoteText(text)}
-        />
+    <ScrollView style={adaptiveStyle.scrollView} contentContainerStyle={styles.container}>
+      <Text style={adaptiveStyle.title}>Создайте новую заметку</Text>
+      <TextInput 
+        style={adaptiveStyle.input_title}
+        placeholder="Введите здесь имя заметки"
+        placeholderTextColor={colors.secondtext}
+        value={noteTitle}
+        onChangeText={text => setNoteTitle(text)}
+      />
+      <TextInput 
+        style={adaptiveStyle.input_text}
+        multiline={true}
+        scrollEnabled={true}
+        placeholder="А здесь напишите её текст"
+        placeholderTextColor={colors.secondtext}
+        value={noteText}
+        onChangeText={text => setNoteText(text)}
+      />
+      <View style={adaptiveStyle.block}>
         <Text style={adaptiveStyle.text}>Выберите категорию для заметки</Text>
         <View style={adaptiveStyle.category}>
           <Picker
@@ -157,16 +181,28 @@ export default function newNote() { // Основное наполнение с�
             }
           </Picker>
         </View>
-        <View style={adaptiveStyle.button}>
-          <Button label="Создать!" backgroundColor={colors.lava} onPress={create}/>
-        </View>
       </View>
+      <View style={adaptiveStyle.block}>
+        <View style={adaptiveStyle.md_switch}>
+            <Switch
+              value={isMarkdown}
+              onValueChange={setIsMarkdown}
+              trackColor={{false: "#dfdfdf", true: colors.lava}}
+              thumbColor={isMarkdown? "#fff" : "#fff"}
+            />
+            <Text style={adaptiveStyle.text}>Markdown</Text>
+        </View>
+        <Text style={adaptiveStyle.hyperlink} onPress={() => nav.navigate("mdGuide")}>Не слышали про Markdown?</Text>
+      </View>
+      <View style={adaptiveStyle.button}>
+        <Button label="Создать!" backgroundColor={colors.lava} onPress={create}/>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({ // Таблица стилей
   container: {
-    flex: 1,
     backgroundColor: colors.background,
     alignItems: "center",
     justifyContent: "flex-start",
@@ -176,6 +212,7 @@ const styles = StyleSheet.create({ // Таблица стилей
     color: "#fff",
     fontSize: 18,
     marginTop: 30,
-    textAlign: "center"
+    textAlign: "center",
+    textDecorationLine: 'underline',
   },
 })

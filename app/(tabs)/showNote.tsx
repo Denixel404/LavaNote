@@ -4,6 +4,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useState, useEffect, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { useFonts } from "expo-font";
+import { Markdown } from "@codearcade/expo-markdown-native";
 
 import { readFile } from "@/src/scripts/fileSystem";
 import { colors, bigDisplay } from "@/src/globalVars";
@@ -13,6 +14,7 @@ export default function showNote() { // Основное наполнение с
   let noteMassive = [];
   const { filename } = useLocalSearchParams();
   const [content, setContent] = useState<string>();
+  const [md, setMd] = useState(false);
   const expansion = filename.slice(-4);
   console.log(`Get expansion: ${expansion}`);
   if (expansion === ".txt") { title = filename.replace(".txt", ""); }
@@ -49,7 +51,10 @@ export default function showNote() { // Основное наполнение с
           }
           else if (expansion === "json") { // Загрузка содержимого для нового формата
             noteMassive = JSON.parse(loadedContent);
+            if (!noteMassive.markdown) noteMassive["markdown"] = false;
             setContent(noteMassive["text"]);
+            setMd(noteMassive["markdown"]);
+
           }
           console.log(`content: ${content}`);
         };
@@ -60,8 +65,16 @@ export default function showNote() { // Основное наполнение с
   return (
       <View style={styles.container}>
         <ScrollView style={styles.scroll}>
-          <Text style={adaptiveStyle.title} selectable={true}>{title}</Text>
-          <Text style={adaptiveStyle.text} selectable={true}>{content}</Text>
+          {md ? (
+            <>
+              <Text style={adaptiveStyle.title} selectable={true}>MD active</Text>
+            </>
+          ) : (
+            <>
+              <Text style={adaptiveStyle.title} selectable={true}>{title}</Text>
+              <Text style={adaptiveStyle.text} selectable={true}>{content}</Text>
+            </>
+          )}
         </ScrollView>
       </View>
   );

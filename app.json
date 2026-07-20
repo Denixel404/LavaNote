@@ -2,7 +2,7 @@
   "expo": {
     "name": "LavaNote",
     "slug": "Lavanote",
-    "version": "2.3.0",
+    "version": "2.4.0",
     "orientation": "portrait",
     "scheme": "lavanote",
     "userInterfaceStyle": "automatic",
@@ -22,7 +22,7 @@
       "bundleIdentifier": "com.denixel.lavanote"
     },
     "android": {
-      "versionCode": 6,
+      "versionCode": 12,
       "package": "com.denixel.lavanote",
       "permissions": [
         "RECEIVE_BOOT_COMPLETED",
