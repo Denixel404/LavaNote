@@ -24,11 +24,6 @@ export async function saveNewPassword(newPassword: string) { // Сохранен
     const passwordHash = hashPassword(newPassword, salt);
     await secureStore.setItemAsync(password_salt_name, salt);
     await secureStore.setItemAsync(password_name, passwordHash);
-
-    const appSettingsJson = await readDataFile("settings.json");
-    const appSettings = JSON.parse(appSettingsJson);
-    appSettings.hasPassword = true;
-    await writeDataFile("settings.json", JSON.stringify(appSettings));
     console.warn("app password was been changed");
 }
 

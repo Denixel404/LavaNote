@@ -279,7 +279,7 @@ export default function Settings() { // Основное наполнение с
 
       <View style={styles.banner}>
         <Text style={adaptiveStyle.title}>LavaNote</Text>
-        <Text style={adaptiveStyle.text}>Версия: {Constants.expoConfig?.version}</Text>
+        <Text style={adaptiveStyle.text}>Версия: {Constants.expoConfig?.version} beta</Text>
       </View>
       <Feature label="Изменить категории" backgroundColor="#482203bd" onPress={async () => openCategories()}/>
       <Feature label="Настроить пароль" backgroundColor="#482203bd" onPress={() => {

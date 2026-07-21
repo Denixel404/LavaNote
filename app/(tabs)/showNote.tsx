@@ -8,6 +8,7 @@ import { Markdown } from "@codearcade/expo-markdown-native";
 
 import { readFile } from "@/src/scripts/fileSystem";
 import { colors, bigDisplay } from "@/src/globalVars";
+import { mdStyles, codeStyles } from "@/src/markdownStyles";
 
 export default function showNote() { // Основное наполнение страницы
   let title = null;
@@ -67,7 +68,12 @@ export default function showNote() { // Основное наполнение с
         <ScrollView style={styles.scroll}>
           {md ? (
             <>
-              <Text style={adaptiveStyle.title} selectable={true}>MD active</Text>
+              <Markdown 
+                content={content}
+                theme="dark"
+                styles={mdStyles}
+                codeTheme={codeStyles}
+              />
             </>
           ) : (
             <>
